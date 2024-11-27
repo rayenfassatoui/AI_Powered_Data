@@ -87,21 +87,16 @@ A comprehensive full-stack solution for interactive data analytics with AI-power
 3. **Set up environment variables**
    Create a `.env` file with the following:
    ```env
-   # Database
-   DATABASE_URL="postgresql://username:password@localhost:5432/ai_powered_data"
-   
-   # Authentication
+   DATABASE_URL=""
    NEXTAUTH_URL="http://localhost:3000"
-   NEXTAUTH_SECRET="your-secret-key"
-   
-   # OAuth Providers
-   GOOGLE_ID="your-google-client-id"
-   GOOGLE_SECRET="your-google-client-secret"
-   GITHUB_ID="your-github-client-id"
-   GITHUB_SECRET="your-github-client-secret"
-   
-   # AI Services
-   OPENAI_API_KEY="your-openai-api-key"
+   NEXTAUTH_SECRET=""
+
+   # OAuth providers
+   GOOGLE_ID=""
+   GOOGLE_SECRET=""
+
+   GITHUB_ID=""
+   GITHUB_SECRET=""
    ```
 
 4. **Initialize the database**
