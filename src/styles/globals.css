@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 249, 250, 251;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+
+  h1 {
+    @apply text-2xl font-bold text-gray-900 mb-4;
+  }
+
+  h2 {
+    @apply text-xl font-semibold text-gray-900 mb-3;
+  }
+
+  h3 {
+    @apply text-lg font-medium text-gray-900 mb-2;
+  }
+
+  p {
+    @apply text-gray-700 leading-relaxed;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary-600 text-white font-medium rounded-lg 
+    hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 
+    focus:ring-offset-2 transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300
+    hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 
+    focus:ring-primary-500 focus:ring-offset-2 transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-sm p-6 border border-gray-200;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 
+    rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 
+    focus:border-primary-500;
+  }
+
+  .table-container {
+    @apply w-full overflow-x-auto bg-white rounded-lg shadow-sm border border-gray-200;
+  }
+
+  .table {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+
+  .table-header {
+    @apply bg-gray-50 text-left text-sm font-medium text-gray-700 
+    uppercase tracking-wider py-3 px-4;
+  }
+
+  .table-cell {
+    @apply text-gray-700 py-3 px-4 text-sm whitespace-nowrap;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .badge-error {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .error-text {
+    @apply text-sm text-red-600 mt-1;
+  }
+
+  .help-text {
+    @apply text-sm text-gray-500 mt-1;
+  }
+
+  .link {
+    @apply text-primary-600 hover:text-primary-700 hover:underline;
+  }
+}
