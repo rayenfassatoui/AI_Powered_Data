@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -19,6 +20,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   datasets      Dataset[]
+  reports       Report[]
 }
 
 model Account {
@@ -57,4 +59,27 @@ model Dataset {
   updatedAt DateTime @updatedAt
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports   Report[]
+}
+
+model Report {
+  id             String    @id @default(cuid())
+  title          String
+  description    String
+  status         String    @default("draft")
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  datasetId      String?
+  dataset        Dataset?  @relation(fields: [datasetId], references: [id])
+  shareToken     String?   @unique
+  metrics        Json      @default("{}")
+  visualizations Json      @default("{}")
+  exportFormat   String    @default("pdf")
+  orientation    String    @default("portrait")
+  includeRawData Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([datasetId])
 }

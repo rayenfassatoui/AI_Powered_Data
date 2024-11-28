@@ -23,6 +23,8 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { motion } from "framer-motion";
 import { useVisualization, VisualizationType } from '@/hooks/useVisualization';
+import { ChartComponent } from '../../components/ChartComponent';
+import ChartCustomization, { ChartConfiguration } from '@/components/ChartCustomization';
 
 ChartJS.register(
   CategoryScale,
@@ -46,20 +48,65 @@ export default function VisualizationsPage() {
   const [datasetData, setDatasetData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [visualizationType, setVisualizationType] = useState<VisualizationType>('timeSeries');
-  const [columnMapping, setColumnMapping] = useState<any>({});
-  const [chartConfig, setChartConfig] = useState<ChartConfiguration>({
-    title: 'Dataset Visualization',
-    aspectRatio: 2,
-    legendPosition: 'top'
-  });
+  const [visualizations, setVisualizations] = useState<Array<{
+    id: string;
+    type: VisualizationType;
+    mapping: Record<string, string>;
+    config: ChartConfiguration;
+  }>>([]);
+  const [activeVisualization, setActiveVisualization] = useState<string | null>(null);
+  const [columnTypes, setColumnTypes] = useState<Record<string, string>>({});
 
-  const { chartData, chartOptions, error: vizError, columnTypes } = useVisualization({
-    data: datasetData,
-    type: visualizationType,
-    mapping: columnMapping,
-    chartConfig
-  });
+  const addVisualization = () => {
+    const newViz = {
+      id: `viz-${Date.now()}`,
+      type: 'timeSeries' as VisualizationType,
+      mapping: {},
+      config: {
+        title: `Visualization ${visualizations.length + 1}`,
+        aspectRatio: 2,
+        legendPosition: 'top'
+      }
+    };
+    setVisualizations(prev => [...prev, newViz]);
+    setActiveVisualization(newViz.id);
+  };
+
+  const updateVisualization = (id: string, updates: Partial<{
+    type: VisualizationType;
+    mapping: Record<string, string>;
+    config: ChartConfiguration;
+  }>) => {
+    setVisualizations(prev => prev.map(viz => 
+      viz.id === id ? { ...viz, ...updates } : viz
+    ));
+  };
+
+  const deleteVisualization = (id: string) => {
+    setVisualizations(prev => prev.filter(viz => viz.id !== id));
+    if (activeVisualization === id) {
+      setActiveVisualization(null);
+    }
+  };
+
+  const renderChart = (viz: typeof visualizations[0]) => {
+    if (!datasetData) return null;
+
+    return (
+      <div 
+        key={viz.id}
+        className={`chart-container ${activeVisualization === viz.id ? 'active' : ''}`}
+        onClick={() => setActiveVisualization(viz.id)}
+      >
+        <ChartComponent
+          data={datasetData}
+          type={viz.type}
+          mapping={viz.mapping}
+          chartConfig={viz.config}
+        />
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -107,28 +154,28 @@ export default function VisualizationsPage() {
     fetchDatasetData();
   }, [selectedDataset]);
 
-  const renderChart = () => {
-    if (!chartData || !chartOptions) return null;
-
-    const commonProps = {
-      options: chartOptions,
-      data: chartData,
-    };
-
-    switch (visualizationType) {
-      case 'timeSeries':
-        return <Line {...commonProps} />;
-      case 'distribution':
-        return <Bar {...commonProps} />;
-      case 'correlation':
-        return <Scatter {...commonProps} />;
-      case 'pie':
-        return <Pie {...commonProps} />;
-      case 'radar':
-        return <Radar {...commonProps} />;
-      default:
-        return null;
+  useEffect(() => {
+    if (datasetData && datasetData.length > 0) {
+      const sample = datasetData[0];
+      const types: Record<string, string> = {};
+      
+      Object.entries(sample).forEach(([key, value]) => {
+        if (value instanceof Date || (typeof value === 'string' && !isNaN(Date.parse(value)))) {
+          types[key] = 'date';
+        } else if (typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value)))) {
+          types[key] = 'number';
+        } else {
+          types[key] = 'string';
+        }
+      });
+      
+      setColumnTypes(types);
     }
+  }, [datasetData]);
+
+  const getColumns = () => {
+    if (!datasetData || datasetData.length === 0) return [];
+    return Object.keys(datasetData[0]);
   };
 
   if (status === 'loading') {
@@ -193,103 +240,98 @@ export default function VisualizationsPage() {
             </Card>
           )}
 
-          {vizError && (
-            <Card className="p-8 bg-red-50 border-red-200">
-              <p className="text-red-600">{vizError}</p>
-            </Card>
-          )}
-
           {datasetData.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Configuration Panel */}
-              <div className="space-y-6">
-                <Card gradient hoverEffect>
-                  <VisualizationConfig
-                    type={visualizationType}
-                    columns={Object.keys(datasetData[0] || {})}
-                    columnTypes={columnTypes}
-                    mapping={columnMapping}
-                    onTypeChange={setVisualizationType}
-                    onMappingChange={setColumnMapping}
-                  />
-                </Card>
-
-                {/* Chart Configuration */}
-                <Card gradient hoverEffect>
-                  <h3 className="text-lg font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Chart Settings
-                  </h3>
-                  
-                  {/* Title */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Chart Title
-                    </label>
-                    <input
-                      type="text"
-                      value={chartConfig.title || ""}
-                      onChange={(e) => setChartConfig({ ...chartConfig, title: e.target.value })}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    />
-                  </div>
-
-                  {/* Aspect Ratio */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Aspect Ratio
-                    </label>
-                    <input
-                      type="number"
-                      min="0.5"
-                      max="4"
-                      step="0.1"
-                      value={chartConfig.aspectRatio || 2}
-                      onChange={(e) => setChartConfig({ ...chartConfig, aspectRatio: Number(e.target.value) })}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    />
-                  </div>
-
-                  {/* Legend Position */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Legend Position
-                    </label>
-                    <select
-                      value={chartConfig.legendPosition || "top"}
-                      onChange={(e) => setChartConfig({ ...chartConfig, legendPosition: e.target.value as "top" | "bottom" | "left" | "right" })}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
-                    >
-                      <option value="top" className="text-gray-900">Top</option>
-                      <option value="bottom" className="text-gray-900">Bottom</option>
-                      <option value="left" className="text-gray-900">Left</option>
-                      <option value="right" className="text-gray-900">Right</option>
-                    </select>
-                  </div>
-
-                  {/* Animation Toggle */}
-                  <div className="mb-4">
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={chartConfig.animation !== false}
-                        onChange={(e) => setChartConfig({ ...chartConfig, animation: e.target.checked })}
-                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                      />
-                      <span className="text-sm text-gray-700">Enable Animation</span>
-                    </label>
-                  </div>
-                </Card>
+            <>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900">Visualizations</h2>
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={addVisualization}
+                >
+                  Add Visualization
+                </Button>
               </div>
 
-              {/* Chart Display */}
-              <div className="lg:col-span-2">
-                <Card gradient hoverEffect className="h-[calc(100vh-12rem)]">
-                  <div className="h-full">
-                    {renderChart()}
-                  </div>
+              {visualizations.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-gray-600 mb-4">No visualizations yet</p>
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={addVisualization}
+                  >
+                    Create Your First Visualization
+                  </Button>
                 </Card>
-              </div>
-            </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Configuration Panel */}
+                  <div className="space-y-6">
+                    <Card gradient hoverEffect>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Select Visualization
+                        </label>
+                        <select
+                          value={activeVisualization || ''}
+                          onChange={(e) => setActiveVisualization(e.target.value)}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+                        >
+                          {visualizations.map(viz => (
+                            <option key={viz.id} value={viz.id}>
+                              {viz.config.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {activeVisualization && (
+                        <div className="space-y-8">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                              Data Mapping
+                            </h3>
+                            <VisualizationConfig
+                              type={visualizations.find(v => v.id === activeVisualization)?.type || 'timeSeries'}
+                              columns={getColumns()}
+                              columnTypes={columnTypes}
+                              mapping={visualizations.find(v => v.id === activeVisualization)?.mapping || {}}
+                              onTypeChange={(type) => updateVisualization(activeVisualization, { type })}
+                              onMappingChange={(mapping) => updateVisualization(activeVisualization, { mapping })}
+                            />
+                          </div>
+
+                          <ChartCustomization
+                            type={visualizations.find(v => v.id === activeVisualization)?.type || 'timeSeries'}
+                            config={visualizations.find(v => v.id === activeVisualization)?.config || {}}
+                            onConfigChange={(config) => updateVisualization(activeVisualization, { config })}
+                          />
+
+                          <div className="pt-4 border-t border-gray-200">
+                            <Button
+                              variant="danger"
+                              onClick={() => deleteVisualization(activeVisualization)}
+                            >
+                              Delete Visualization
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+                  </div>
+
+                  {/* Charts Display */}
+                  <div className="lg:col-span-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {visualizations.map(viz => (
+                        renderChart(viz)
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </motion.div>
