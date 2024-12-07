@@ -3,13 +3,29 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import prisma from '@/lib/prisma';
 
+// Verify environment variables
+const requiredEnvVars = {
+  GOOGLE_ID: process.env.GOOGLE_ID,
+  GOOGLE_SECRET: process.env.GOOGLE_SECRET,
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  DATABASE_URL: process.env.DATABASE_URL,
+};
+
+// Log missing environment variables
+Object.entries(requiredEnvVars).forEach(([key, value]) => {
+  if (!value) {
+    console.error(`Missing required environment variable: ${key}`);
+  }
+});
+
 export const authOptions: NextAuthOptions = {
   debug: true,
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID || '',
-      clientSecret: process.env.GOOGLE_SECRET || '',
+      clientId: process.env.GOOGLE_ID ?? '',
+      clientSecret: process.env.GOOGLE_SECRET ?? '',
       authorization: {
         params: {
           prompt: "consent",
@@ -26,37 +42,82 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
+        // Log the sign-in attempt
+        console.log('Sign-in attempt:', {
+          user: { id: user.id, email: user.email },
+          account: { provider: account?.provider },
+          hasProfile: !!profile
+        });
+
         if (!user?.email) {
+          console.error('Sign-in failed: No email provided');
           return false;
         }
+
+        // Verify database connection
+        try {
+          await prisma.$connect();
+          console.log('Database connection successful');
+        } catch (dbError) {
+          console.error('Database connection failed:', dbError);
+          return false;
+        }
+
         return true;
       } catch (error) {
-        console.error('Sign in callback error:', error);
+        console.error('Sign-in callback error:', error);
         return false;
       }
     },
     async session({ session, user }) {
-      if (session?.user) {
-        session.user.id = user.id;
+      try {
+        if (session?.user) {
+          session.user.id = user.id;
+        }
+        return session;
+      } catch (error) {
+        console.error('Session callback error:', error);
+        return session;
       }
-      return session;
+    },
+    async jwt({ token, user }) {
+      try {
+        if (user) {
+          token.id = user.id;
+        }
+        return token;
+      } catch (error) {
+        console.error('JWT callback error:', error);
+        return token;
+      }
     }
   },
   events: {
-    signIn({ user, account, profile, isNewUser }) {
-      console.log('Sign in event:', { user, account, isNewUser });
+    async signIn(message) {
+      console.log('Sign-in event:', message);
     },
-    signOut({ session, token }) {
-      console.log('Sign out event:', { session, token });
+    async signOut(message) {
+      console.log('Sign-out event:', message);
     },
-    createUser({ user }) {
-      console.log('Create user event:', user);
+    async createUser(message) {
+      console.log('Create user event:', message);
     },
-    linkAccount({ user, account, profile }) {
-      console.log('Link account event:', { user, account, profile });
+    async linkAccount(message) {
+      console.log('Link account event:', message);
     },
-    session({ session, token }) {
-      console.log('Session event:', { session, token });
+    async session(message) {
+      console.log('Session event:', message);
+    }
+  },
+  logger: {
+    error(code, metadata) {
+      console.error('Auth error:', { code, metadata });
+    },
+    warn(code) {
+      console.warn('Auth warning:', { code });
+    },
+    debug(code, metadata) {
+      console.log('Auth debug:', { code, metadata });
     }
   },
   secret: process.env.NEXTAUTH_SECRET,
@@ -66,14 +127,14 @@ export const authOptions: NextAuthOptions = {
   }
 };
 
-// For debugging purposes
-if (process.env.NODE_ENV === 'development') {
-  console.log('NextAuth configuration:', {
-    hasGoogleId: !!process.env.GOOGLE_ID,
-    hasGoogleSecret: !!process.env.GOOGLE_SECRET,
-    hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
-    hasNextAuthUrl: !!process.env.NEXTAUTH_URL,
-  });
-}
+// Add error handling to the NextAuth handler
+const handler = async (req: any, res: any) => {
+  try {
+    return await NextAuth(req, res, authOptions);
+  } catch (error) {
+    console.error('NextAuth handler error:', error);
+    res.status(500).json({ error: 'Internal authentication error' });
+  }
+};
 
-export default NextAuth(authOptions);
+export default handler;
