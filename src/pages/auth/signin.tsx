@@ -11,12 +11,20 @@ export default function SignIn() {
     try {
       setIsLoading(true);
       setError(null);
-      await signIn('google', {
+      const result = await signIn('google', {
         callbackUrl: '/',
+        redirect: false
       });
+
+      if (result?.error) {
+        console.error('Sign in error:', result.error);
+        setError(result.error === 'Configuration' 
+          ? 'Server configuration error. Please try again later.' 
+          : 'Failed to sign in with Google');
+      }
     } catch (err) {
       console.error('Sign in error:', err);
-      setError('Failed to sign in with Google');
+      setError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }

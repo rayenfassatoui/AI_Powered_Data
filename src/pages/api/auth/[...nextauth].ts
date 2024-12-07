@@ -16,8 +16,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
+      clientId: process.env.GOOGLE_ID || '',
+      clientSecret: process.env.GOOGLE_SECRET || '',
       authorization: {
         params: {
           prompt: "consent",
@@ -50,7 +50,17 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
       }
       return token;
-    }
+    },
+    async signIn({ user, account, profile, email, credentials }) {
+      try {
+        // Log successful sign-in attempt
+        console.log('Sign-in attempt:', { user, account });
+        return true;
+      } catch (error) {
+        console.error('Sign-in error:', error);
+        return false;
+      }
+    },
   },
   pages: {
     signIn: '/auth/signin',
@@ -60,8 +70,19 @@ export const authOptions: NextAuthOptions = {
     strategy: 'database',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  debug: false,
+  debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
+  logger: {
+    error(code, ...message) {
+      console.error('AUTH ERROR:', code, message);
+    },
+    warn(code, ...message) {
+      console.warn('AUTH WARN:', code, message);
+    },
+    debug(code, ...message) {
+      console.debug('AUTH DEBUG:', code, message);
+    }
+  }
 };
 
 export default NextAuth(authOptions);
