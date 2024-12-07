@@ -1,9 +1,10 @@
 import { GetServerSideProps } from 'next';
 import { getProviders, signIn } from 'next-auth/react';
-import { FaGoogle, FaGithub } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
 import { useState } from 'react';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
-export default function SignIn() {
+function SignInContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,33 +12,36 @@ export default function SignIn() {
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Log the environment
-      console.log('Environment:', {
-        hasGoogleId: !!process.env.NEXT_PUBLIC_GOOGLE_ID,
-        hasGoogleSecret: !!process.env.NEXT_PUBLIC_GOOGLE_SECRET,
-        nodeEnv: process.env.NODE_ENV
-      });
 
       const result = await signIn('google', {
         callbackUrl: '/',
         redirect: false
       });
 
-      console.log('Sign-in result:', result);
+      if (!result) {
+        throw new Error('Received null response from signIn');
+      }
 
-      if (result?.error) {
+      if (result.error) {
         console.error('Sign in error:', result.error);
-        if (result.error === 'Configuration') {
-          setError('OAuth configuration error. Please contact support.');
-        } else {
-          setError(`Authentication failed: ${result.error}`);
+        switch (result.error) {
+          case 'Configuration':
+            setError('Server configuration error. Please try again later.');
+            break;
+          case 'AccessDenied':
+            setError('Access denied. Please contact support.');
+            break;
+          case 'DatabaseError':
+            setError('Database error. Please try again.');
+            break;
+          default:
+            setError(`Authentication failed: ${result.error}`);
         }
-      } else if (result?.url) {
+      } else if (result.url) {
         window.location.href = result.url;
       }
     } catch (err) {
-      console.error('Unexpected error during sign in:', err);
+      console.error('Sign in error:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -70,6 +74,14 @@ export default function SignIn() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <ErrorBoundary>
+      <SignInContent />
+    </ErrorBoundary>
   );
 }
 
