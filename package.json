@@ -15,8 +15,7 @@
     "@types/chart.js": "^2.9.41",
     "@types/pdfkit": "^0.13.6",
     "aceternity-ui": "^0.2.2",
-    "canvas": "^2.11.2",
-    "chart.js": "^4.4.6",
+    "chart.js": "^4.0.0",
     "chartjs-adapter-date-fns": "^3.0.0",
     "clsx": "^2.1.1",
     "danfojs": "^1.1.2",
@@ -41,7 +40,8 @@
     "recharts": "^2.8.0",
     "tailwind-merge": "^2.5.5",
     "together-ai": "^0.10.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@napi-rs/canvas": "^0.1.44"
   },
   "devDependencies": {
     "@types/node": "^20.8.4",
