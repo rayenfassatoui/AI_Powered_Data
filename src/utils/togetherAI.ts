@@ -1,8 +1,8 @@
 import Together from "together-ai";
 
-// Initialize Together AI client
+// Initialize Together AI client with server-side API key
 const together = new Together({ 
-  apiKey: process.env.NEXT_PUBLIC_TOGETHER_API_KEY || '' 
+  apiKey: process.env.TOGETHER_API_KEY || '' // Changed to TOGETHER_API_KEY (not NEXT_PUBLIC)
 });
 
 // Rate limiting configuration
@@ -60,32 +60,58 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 }
 
 function cleanJsonResponse(text: string): string {
+  if (!text) {
+    throw new Error('Empty response received from AI');
+  }
+
   try {
+    // Log the original text for debugging
+    console.log('Original response:', text);
+
     // Remove markdown code block markers and any text before/after the JSON
-    let cleanedText = text;
+    let cleanedText = text.trim();
     
     // Remove markdown formatting
-    cleanedText = cleanedText.replace(/```json\s*/g, '');
-    cleanedText = cleanedText.replace(/```\s*/g, '');
+    cleanedText = cleanedText.replace(/^```json\s*/m, '');
+    cleanedText = cleanedText.replace(/^```\s*/m, '');
+    cleanedText = cleanedText.replace(/```$/m, '');
     
-    // Find the first { and last }
-    const startIndex = cleanedText.indexOf('{');
-    const endIndex = cleanedText.lastIndexOf('}');
+    // Trim any whitespace
+    cleanedText = cleanedText.trim();
+    
+    // If the text starts with '[', assume it's already a JSON array
+    if (cleanedText.startsWith('[')) {
+      try {
+        // Try to parse as is
+        JSON.parse(cleanedText);
+        return cleanedText;
+      } catch (e) {
+        // If parsing fails, continue with additional cleaning
+        console.log('Initial parse failed, continuing with cleaning');
+      }
+    }
+
+    // Find the first [ and last ]
+    const startIndex = cleanedText.indexOf('[');
+    const endIndex = cleanedText.lastIndexOf(']');
     
     if (startIndex === -1 || endIndex === -1) {
-      throw new Error('No JSON object found in response');
+      throw new Error('No JSON array found in response');
     }
     
-    // Extract just the JSON part
+    // Extract just the JSON array part
     cleanedText = cleanedText.slice(startIndex, endIndex + 1);
     
-    // Remove any trailing commas before closing brackets/braces
-    cleanedText = cleanedText.replace(/,(\s*[}\]])/g, '$1');
+    // Remove any trailing commas before closing brackets
+    cleanedText = cleanedText.replace(/,(\s*[\]}])/g, '$1');
     
-    // Replace "..." with empty array
-    cleanedText = cleanedText.replace(/,?\s*\.{3}\s*(?=[\]}])/g, '');
+    // Remove any ellipsis
+    cleanedText = cleanedText.replace(/\.{3},?/g, '');
     
-    // Try to parse to validate JSON
+    // Log the cleaned text for debugging
+    console.log('Cleaned text:', cleanedText);
+
+    // Validate the JSON
     JSON.parse(cleanedText);
     
     return cleanedText;
@@ -175,32 +201,39 @@ async function processDataChunk(chunk: any[]): Promise<{ success: boolean; data?
     Input data: ${JSON.stringify(chunk)}`;
 
     const response = await processWithRetry(async () => {
-      return await fetch('https://api.together.xyz/inference', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_TOGETHER_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/Llama-3-70b-chat-hf',
-          prompt,
-          max_tokens: 2048,
-          temperature: 0.1,
-          top_p: 0.95,
-          repetition_penalty: 1,
-          stop: ['</s>']
-        })
+      return await together.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: "You are a data cleaning assistant. Return only valid JSON arrays with cleaned data."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        max_tokens: 2048,
+        temperature: 0.1,
+        top_p: 0.95,
+        top_k: 50,
+        repetition_penalty: 1,
+        stop: ["<|eot_id|>", "<|eom_id|>"],
+        stream: false // Set to false since we want the complete response
       });
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to process data with AI');
+    if (!response?.choices?.[0]?.message?.content) {
+      console.error('Invalid API Response Structure:', response);
+      throw new Error('Empty or invalid response from AI service');
     }
 
-    const result = await response.json();
-    const cleanedData = cleanJsonResponse(result.output.content);
+    const cleanedData = cleanJsonResponse(response.choices[0].message.content);
     const parsedData = JSON.parse(cleanedData);
+
+    if (!Array.isArray(parsedData)) {
+      throw new Error('AI response is not a valid array');
+    }
 
     return {
       success: true,
@@ -209,6 +242,9 @@ async function processDataChunk(chunk: any[]): Promise<{ success: boolean; data?
     };
   } catch (error) {
     console.error('Error in processDataChunk:', error);
+    if (error instanceof Error) {
+      console.error('Error stack:', error.stack);
+    }
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to process data chunk'
