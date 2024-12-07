@@ -130,7 +130,8 @@ export async function cleanDataWithAI(data: any[]) {
       let cleanedData: any[] = [];
       let summaries: string[] = [];
 
-      for (const [index, chunk] of chunks.entries()) {
+      for (let index = 0; index < chunks.length; index++) {
+        const chunk = chunks[index];
         console.log(`Processing chunk ${index + 1}/${chunks.length}`);
         const result = await processDataChunk(chunk);
         if (result.success) {
@@ -199,10 +200,11 @@ async function processDataChunk(chunk: any[]): Promise<{ success: boolean; data?
 
     const result = await response.json();
     const cleanedData = cleanJsonResponse(result.output.content);
+    const parsedData = JSON.parse(cleanedData);
 
     return {
       success: true,
-      data: cleanedData,
+      data: parsedData,
       summary: `Successfully cleaned ${chunk.length} records`
     };
   } catch (error) {

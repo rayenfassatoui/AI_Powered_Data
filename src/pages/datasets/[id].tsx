@@ -16,6 +16,12 @@ interface Dataset {
   userId: string;
 }
 
+interface DataCleanerProps {
+  data: any[];
+  onDataCleaned: (cleanedData: any[]) => Promise<void>;
+  datasetId: string;
+}
+
 export default function DatasetDetail() {
   const router = useRouter();
   const { id } = router.query;
@@ -597,6 +603,7 @@ export default function DatasetDetail() {
           <DataCleaner 
             data={dataset?.data || []} 
             onDataCleaned={handleDataCleaned} 
+            datasetId={dataset?.id}
           />
         </motion.div>
       </motion.div>

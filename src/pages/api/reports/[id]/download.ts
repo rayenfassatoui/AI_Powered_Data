@@ -128,7 +128,9 @@ async function generatePDF(report: any, res: NextApiResponse) {
         doc.moveDown(2);
       } catch (error) {
         console.error(`Error generating visualization:`, error);
-        doc.fontSize(12).text(`Error generating visualization: ${error.message}`, { color: 'red' });
+        doc.fontSize(12)
+           .fillColor('red')
+           .text(`Error generating visualization: ${error.message}`);
         doc.moveDown();
       }
     }

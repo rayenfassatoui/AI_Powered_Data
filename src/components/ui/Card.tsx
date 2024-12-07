@@ -1,11 +1,10 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/utils/cn";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CardProps extends HTMLMotionProps<"div"> {
   gradient?: boolean;
   hoverEffect?: boolean;
-  className?: string;
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -15,14 +14,10 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         ref={ref}
         className={cn(
           "rounded-xl p-4 bg-white",
-          gradient && "bg-gradient-to-br from-white to-slate-50",
-          hoverEffect && "transition-all hover:shadow-lg hover:-translate-y-1",
-          "border border-slate-200",
+          gradient && "bg-gradient-to-br from-white to-gray-50",
+          hoverEffect && "hover:shadow-lg transition-shadow duration-200",
           className
         )}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
         {...props}
       >
         {children}

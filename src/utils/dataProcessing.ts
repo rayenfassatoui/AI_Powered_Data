@@ -11,14 +11,31 @@ interface ChartData {
     labels: string[];
     datasets: Array<{
       label: string;
-      data: number[];
+      data: number[] | Array<{x: number; y: number}>;
       backgroundColor?: string | string[];
       borderColor?: string;
       fill?: boolean;
       tension?: number;
       pointRadius?: number;
       pointHoverRadius?: number;
+      type?: string;
     }>;
+    options?: {
+      scales?: {
+        x?: {
+          title?: {
+            display?: boolean;
+            text?: string;
+          };
+        };
+        y?: {
+          title?: {
+            display?: boolean;
+            text?: string;
+          };
+        };
+      };
+    };
   };
 }
 
@@ -61,7 +78,7 @@ export function calculateMetrics(dataset: Dataset): MetricResult[] {
   metrics.push({ id: 'avg-transaction', value: avgTransaction });
 
   // Top Products
-  const productSales = data.reduce((acc: { [key: string]: number }, item) => {
+  const productSales: Record<string, number> = data.reduce((acc: { [key: string]: number }, item) => {
     const product = item.product || item.item || item.name || 'Unknown';
     const amount = parseFloat(item.amount || item.revenue || item.sales || '0');
     acc[product] = (acc[product] || 0) + (isNaN(amount) ? 0 : amount);
@@ -69,7 +86,7 @@ export function calculateMetrics(dataset: Dataset): MetricResult[] {
   }, {});
 
   const topProducts = Object.entries(productSales)
-    .sort(([, a], [, b]) => b - a)
+    .sort(([, a], [, b]) => (b as number) - (a as number))
     .slice(0, 5)
     .map(([product, value]) => ({ product, value }));
   metrics.push({ id: 'top-products', value: topProducts });
@@ -116,8 +133,8 @@ export function generateVisualizations(dataset: Dataset): ChartData[] {
   }, {});
 
   const topProducts = Object.entries(productData)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5);
+    .sort(([, a], [, b]) => (b as number) - (a as number))
+    .slice(0, 5) as [string, number][];
 
   visualizations.push({
     id: 'bar-chart',
@@ -137,6 +154,7 @@ export function generateVisualizations(dataset: Dataset): ChartData[] {
     data: {
       labels: topProducts.map(([product]) => product),
       datasets: [{
+        label: 'Product Revenue Distribution',
         data: topProducts.map(([, value]) => value),
         backgroundColor: colors
       }]
@@ -178,7 +196,9 @@ export function generateVisualizations(dataset: Dataset): ChartData[] {
   visualizations.push({
     id: 'scatter-plot',
     data: {
+      labels: [],
       datasets: [{
+        type: 'scatter',
         label: 'Quantity vs Revenue',
         data: scatterData,
         backgroundColor: '#3B82F6',

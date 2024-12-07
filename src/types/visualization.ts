@@ -14,6 +14,8 @@ export interface ChartConfiguration {
   borderWidth?: number;
   fontSize?: number;
   padding?: number;
+  description?: string;
+  data?: any;
 }
 
 export interface Visualization {

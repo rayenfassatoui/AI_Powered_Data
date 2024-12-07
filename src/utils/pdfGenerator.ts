@@ -81,12 +81,12 @@ export const generateVisualizationsPDF = async (visualizations: any[], chartConf
       }
 
       // Add axis information if available
-      if (config?.xAxis) {
-        pdf.text(`X-Axis Label: ${config.xAxis}`, margin, yPosition);
+      if (config?.data?.options?.scales?.x?.title?.text) {
+        pdf.text(`X-Axis Label: ${config.data.options.scales.x.title.text}`, margin, yPosition);
         yPosition += 7;
       }
-      if (config?.yAxis) {
-        pdf.text(`Y-Axis Label: ${config.yAxis}`, margin, yPosition);
+      if (config?.data?.options?.scales?.y?.title?.text) {
+        pdf.text(`Y-Axis Label: ${config.data.options.scales.y.title.text}`, margin, yPosition);
         yPosition += 7;
       }
 
@@ -96,7 +96,7 @@ export const generateVisualizationsPDF = async (visualizations: any[], chartConf
         pdf.text('Description:', margin, yPosition);
         yPosition += 7;
         
-        const splitDescription = pdf.splitTextToSize(config.description, pageWidth - (margin * 2));
+        const splitDescription = pdf.splitTextToSize(config.description.toString(), pageWidth - (margin * 2));
         pdf.text(splitDescription, margin, yPosition);
         yPosition += (splitDescription.length * 7);
       }

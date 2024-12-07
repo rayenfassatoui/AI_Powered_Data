@@ -8,6 +8,8 @@ interface ChartCustomizationProps {
 }
 
 export interface ChartConfiguration {
+  description?: string;
+  data: any;
   title: string;
   aspectRatio: number;
   legendPosition: 'top' | 'bottom' | 'left' | 'right';

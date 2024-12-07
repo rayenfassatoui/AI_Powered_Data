@@ -4,11 +4,10 @@ import { Chart } from 'chart.js/auto';
 
 export async function generateChartImage(config: ChartConfiguration): Promise<Buffer> {
   // Create canvas with appropriate size
-  const canvas = createCanvas(800, 400);
-  const ctx = canvas.getContext('2d');
+  const canvas = createCanvas(800, 600); // Specify width and height
 
   // Create and render chart
-  const chart = new Chart(ctx, {
+  const chart = new Chart(canvas as any, {
     ...config,
     options: {
       ...config.options,
@@ -53,8 +52,9 @@ export async function generateChartImage(config: ChartConfiguration): Promise<Bu
     }
   });
 
-  // Convert chart to image buffer
+  // Convert chart to buffer directly
   const buffer = canvas.toBuffer('image/png');
+  
   chart.destroy();
   return buffer;
 }
@@ -254,7 +254,9 @@ export function createChartConfig(visualization: any): ChartConfiguration {
           layout: {
             padding: 20
           },
-          cutout: '50%'
+          plugins: {
+            ...baseConfig.options?.plugins
+          }
         }
       };
 

@@ -75,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const report = await prisma.report.create({
           data: {
             title,
-            description,
+            content: description,
             metrics: JSON.stringify(processedMetrics),
             visualizations: JSON.stringify(processedVisualizations),
             exportFormat,

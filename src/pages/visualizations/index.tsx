@@ -79,6 +79,10 @@ export default function VisualizationsPage() {
     borderWidth: 1,
     fontSize: 16,
     padding: 30,
+    data: {
+      labels: [],
+      datasets: []
+    }
   };
 
   useEffect(() => {
@@ -291,7 +295,7 @@ export default function VisualizationsPage() {
             type={visualization.type}
             data={datasetData}
             mapping={visualization.mapping}
-            config={visualization.config}
+            chartConfig={visualization.config}
             id={visualization.id}
           />
         </Card>

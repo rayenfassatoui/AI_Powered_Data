@@ -114,7 +114,9 @@ export default function ChartGrid({ visualizations }: ChartGridProps) {
           className="chart-grid-item"
         >
           <canvas
-            ref={el => chartRefs.current[viz.id] = el}
+            ref={(el: HTMLCanvasElement | null) => {
+              if (el) chartRefs.current[viz.id] = el;
+            }}
             className="chart-canvas"
           />
         </motion.div>

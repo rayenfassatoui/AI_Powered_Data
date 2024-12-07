@@ -26,12 +26,13 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
     chartConfig,
   });
 
+  // ... existing code ...
   const defaultConfig: ChartConfiguration = {
     title: '',
     aspectRatio: 2,
     legendPosition: 'top',
-    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-    borderColor: '#2563eb',
+    backgroundColor: 'white',
+    borderColor: '#000000',
     showGrid: true,
     animation: true,
     tension: 0.4,
@@ -39,9 +40,13 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
     pointStyle: 'circle',
     borderWidth: 2,
     fontSize: 12,
-    padding: 20
+    padding: 20,
+    // Remove the description field if it's not needed
+    // description: '',
+    data: {},
+    description: '',
   };
-
+// ... existing code ...
   const config = { ...defaultConfig, ...chartConfig };
 
   if (!chartData || !chartOptions) {
@@ -79,7 +84,7 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
           labels: {
             font: {
               size: config.fontSize || 14,
-              weight: 'bold',
+              weight: 'normal' as const,
             },
             color: '#1f2937',
             padding: 20,
@@ -90,7 +95,7 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
           text: config.title,
           font: {
             size: (config.fontSize || 14) + 4,
-            weight: 'bold',
+            weight: 'bold' as const,
           },
           color: '#1f2937',
           padding: {
@@ -116,6 +121,7 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
           ticks: {
             font: {
               size: config.fontSize || 14,
+              weight: 'normal' as const,
             },
             color: '#4b5563',
             padding: 10,
@@ -129,6 +135,7 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
           ticks: {
             font: {
               size: config.fontSize || 14,
+              weight: 'normal' as const,
             },
             color: '#4b5563',
             padding: 10,
