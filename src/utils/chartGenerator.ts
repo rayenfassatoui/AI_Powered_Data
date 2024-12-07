@@ -1,5 +1,5 @@
 import { ChartConfiguration } from 'chart.js/auto';
-import { createCanvas } from 'canvas';
+import { createCanvas } from '@napi-rs/canvas';
 import { Chart } from 'chart.js/auto';
 
 export async function generateChartImage(config: ChartConfiguration): Promise<Buffer> {
