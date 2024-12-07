@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import { FiEdit2, FiDownload, FiTrash2, FiSearch, FiChevronLeft, FiSave, FiX } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import DataCleaner from '@/components/DataCleaner';
 
 interface Dataset {
   id: string;
@@ -195,6 +196,28 @@ export default function DatasetDetail() {
     } catch (err) {
       console.error('Error updating dataset:', err);
       setError(err instanceof Error ? err.message : 'Error updating dataset');
+    }
+  };
+
+  const handleDataCleaned = async (cleanedData: any[]) => {
+    try {
+      const response = await fetch(`/api/datasets/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: cleanedData }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update dataset');
+      }
+
+      // Refresh the dataset
+      const updatedDataset = await response.json();
+      setDataset(updatedDataset);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update dataset');
     }
   };
 
@@ -562,6 +585,19 @@ export default function DatasetDetail() {
               </div>
             )}
           </div>
+        </motion.div>
+
+        <motion.div 
+          className="bg-white shadow rounded-lg p-6 mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Data Cleaning</h2>
+          <DataCleaner 
+            data={dataset?.data || []} 
+            onDataCleaned={handleDataCleaned} 
+          />
         </motion.div>
       </motion.div>
     </div>

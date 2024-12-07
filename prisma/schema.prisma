@@ -6,21 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  datasets      Dataset[]
-  reports       Report[]
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -50,36 +37,34 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  datasets      Dataset[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model Dataset {
   id        String   @id @default(cuid())
   name      String
   type      String
   data      Json
+  cleaned   Boolean  @default(false)
+  tag       String?  @default("raw")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reports   Report[]
-}
-
-model Report {
-  id             String    @id @default(cuid())
-  title          String
-  description    String
-  status         String    @default("draft")
-  userId         String
-  user           User      @relation(fields: [userId], references: [id])
-  datasetId      String?
-  dataset        Dataset?  @relation(fields: [datasetId], references: [id])
-  shareToken     String?   @unique
-  metrics        Json      @default("{}")
-  visualizations Json      @default("{}")
-  exportFormat   String    @default("pdf")
-  orientation    String    @default("portrait")
-  includeRawData Boolean   @default(false)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  @@index([userId])
-  @@index([datasetId])
 }

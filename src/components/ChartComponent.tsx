@@ -9,6 +9,7 @@ interface ChartComponentProps {
   type: VisualizationType;
   mapping: Record<string, string>;
   chartConfig: ChartConfiguration;
+  id: string; 
 }
 
 export const ChartComponent: React.FC<ChartComponentProps> = ({
@@ -16,6 +17,7 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
   type,
   mapping,
   chartConfig,
+  id, 
 }) => {
   const { chartData, chartOptions } = useVisualization({
     data,
@@ -24,87 +26,135 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
     chartConfig,
   });
 
+  const defaultConfig: ChartConfiguration = {
+    title: '',
+    aspectRatio: 2,
+    legendPosition: 'top',
+    backgroundColor: '#ffffff',
+    borderColor: '#2563eb',
+    showGrid: true,
+    animation: true,
+    tension: 0.4,
+    fill: false,
+    pointStyle: 'circle',
+    borderWidth: 2,
+    fontSize: 12,
+    padding: 20
+  };
+
+  const config = { ...defaultConfig, ...chartConfig };
+
   if (!chartData || !chartOptions) {
     return <div>Loading chart...</div>;
   }
+
+  const getChartComponent = () => {
+    switch (type) {
+      case 'timeSeries':
+        return Line;
+      case 'distribution':
+        return Bar;
+      case 'correlation':
+        return Scatter;
+      case 'pie':
+        return Pie;
+      case 'radar':
+        return Radar;
+      default:
+        return Line;
+    }
+  };
+
+  const ChartType = getChartComponent();
 
   const commonProps = {
     options: {
       ...chartOptions,
       responsive: true,
       maintainAspectRatio: true,
-      aspectRatio: chartConfig.aspectRatio,
+      aspectRatio: config.aspectRatio || 2,
       plugins: {
         legend: {
-          position: chartConfig.legendPosition,
+          position: config.legendPosition,
           labels: {
             font: {
-              size: chartConfig.fontSize,
+              size: config.fontSize || 14,
+              weight: 'bold',
             },
+            padding: 20,
           },
         },
         title: {
           display: true,
-          text: chartConfig.title,
+          text: config.title,
           font: {
-            size: chartConfig.fontSize ? chartConfig.fontSize + 4 : 16,
+            size: (config.fontSize || 14) + 4,
+            weight: 'bold',
           },
-          padding: chartConfig.padding || 20,
+          padding: {
+            top: 20,
+            bottom: 20
+          },
         },
       },
-      scales: {
+      layout: {
+        padding: {
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: 20
+        }
+      },
+      scales: type !== 'pie' && type !== 'radar' ? {
         x: {
           grid: {
-            display: chartConfig.showGrid,
+            display: config.showGrid,
+          },
+          ticks: {
+            font: {
+              size: config.fontSize || 14,
+            },
+            padding: 10,
           },
         },
         y: {
           grid: {
-            display: chartConfig.showGrid,
+            display: config.showGrid,
           },
+          ticks: {
+            font: {
+              size: config.fontSize || 14,
+            },
+            padding: 10,
+          },
+          beginAtZero: true,
         },
-      },
+      } : undefined,
       animation: {
-        duration: chartConfig.animation ? 1000 : 0,
-      },
-      elements: {
-        line: {
-          tension: chartConfig.tension || 0,
-          fill: chartConfig.fill,
-          borderWidth: chartConfig.borderWidth,
-          borderColor: chartConfig.borderColor,
-        },
-        point: {
-          pointStyle: chartConfig.pointStyle,
-          backgroundColor: chartConfig.backgroundColor,
-          borderColor: chartConfig.borderColor,
-          borderWidth: chartConfig.borderWidth,
-        },
+        duration: config.animation ? 1000 : 0,
       },
     },
     data: {
       ...chartData,
       datasets: chartData.datasets.map(dataset => ({
         ...dataset,
-        backgroundColor: chartConfig.backgroundColor,
-        borderColor: chartConfig.borderColor,
-        borderWidth: chartConfig.borderWidth,
+        backgroundColor: config.backgroundColor,
+        borderColor: config.borderColor,
+        borderWidth: config.borderWidth,
+        tension: config.tension,
+        fill: config.fill,
+        pointStyle: config.pointStyle,
+        radius: 5,
+        hoverRadius: 7,
       })),
     },
   };
 
-  switch (type) {
-    case 'timeSeries':
-      return <Line {...commonProps} />;
-    case 'distribution':
-      return <Bar {...commonProps} />;
-    case 'correlation':
-      return <Scatter {...commonProps} />;
-    case 'pie':
-      return <Pie {...commonProps} />;
-    case 'radar':
-      return <Radar {...commonProps} />;
-    default:
-      return <div>Unsupported chart type</div>;
-  }
+  return (
+    <div className="w-full min-h-[400px] p-4 bg-white rounded-lg shadow-sm" data-chart-id={id}>
+      <div className="w-full h-full" style={{ minHeight: '400px' }}>
+        <ChartType {...commonProps} />
+      </div>
+    </div>
+  );
 };
