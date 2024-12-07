@@ -5,19 +5,19 @@ import { VisualizationType } from '../types/visualization';
 import { ChartConfiguration } from './ChartCustomization';
 
 interface ChartComponentProps {
-  data: any[];
+  id: string;
   type: VisualizationType;
+  data: any[];
   mapping: Record<string, string>;
   chartConfig: ChartConfiguration;
-  id: string; 
 }
 
 export const ChartComponent: React.FC<ChartComponentProps> = ({
-  data,
+  id,
   type,
+  data,
   mapping,
-  chartConfig,
-  id, 
+  chartConfig
 }) => {
   const { chartData, chartOptions } = useVisualization({
     data,
@@ -30,7 +30,7 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
     title: '',
     aspectRatio: 2,
     legendPosition: 'top',
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(37, 99, 235, 0.1)',
     borderColor: '#2563eb',
     showGrid: true,
     animation: true,
@@ -81,6 +81,7 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
               size: config.fontSize || 14,
               weight: 'bold',
             },
+            color: '#1f2937',
             padding: 20,
           },
         },
@@ -91,6 +92,7 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
             size: (config.fontSize || 14) + 4,
             weight: 'bold',
           },
+          color: '#1f2937',
           padding: {
             top: 20,
             bottom: 20
@@ -109,22 +111,26 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
         x: {
           grid: {
             display: config.showGrid,
+            color: 'rgba(156, 163, 175, 0.2)',
           },
           ticks: {
             font: {
               size: config.fontSize || 14,
             },
+            color: '#4b5563',
             padding: 10,
           },
         },
         y: {
           grid: {
             display: config.showGrid,
+            color: 'rgba(156, 163, 175, 0.2)',
           },
           ticks: {
             font: {
               size: config.fontSize || 14,
             },
+            color: '#4b5563',
             padding: 10,
           },
           beginAtZero: true,

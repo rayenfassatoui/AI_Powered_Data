@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
+import { motion } from 'framer-motion';
 
 interface ChartGridProps {
   visualizations: Array<{
@@ -103,14 +104,20 @@ export default function ChartGrid({ visualizations }: ChartGridProps) {
   }, [visualizations]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+    <div className="chart-grid">
       {visualizations.map(viz => (
-        <div key={viz.id} className="bg-white rounded-lg shadow-sm p-4 h-[400px]">
+        <motion.div
+          key={viz.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="chart-grid-item"
+        >
           <canvas
             ref={el => chartRefs.current[viz.id] = el}
-            className="w-full h-full"
+            className="chart-canvas"
           />
-        </div>
+        </motion.div>
       ))}
     </div>
   );
