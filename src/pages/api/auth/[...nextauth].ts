@@ -13,6 +13,7 @@ if (!process.env.GOOGLE_ID || !process.env.GOOGLE_SECRET) {
 }
 
 export const authOptions: NextAuthOptions = {
+  debug: true,
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -70,7 +71,6 @@ export const authOptions: NextAuthOptions = {
     strategy: 'database',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
   logger: {
     error(code, ...message) {

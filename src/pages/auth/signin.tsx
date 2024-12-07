@@ -11,20 +11,34 @@ export default function SignIn() {
     try {
       setIsLoading(true);
       setError(null);
+      
+      // Log the environment
+      console.log('Environment:', {
+        hasGoogleId: !!process.env.NEXT_PUBLIC_GOOGLE_ID,
+        hasGoogleSecret: !!process.env.NEXT_PUBLIC_GOOGLE_SECRET,
+        nodeEnv: process.env.NODE_ENV
+      });
+
       const result = await signIn('google', {
         callbackUrl: '/',
         redirect: false
       });
 
+      console.log('Sign-in result:', result);
+
       if (result?.error) {
         console.error('Sign in error:', result.error);
-        setError(result.error === 'Configuration' 
-          ? 'Server configuration error. Please try again later.' 
-          : 'Failed to sign in with Google');
+        if (result.error === 'Configuration') {
+          setError('OAuth configuration error. Please contact support.');
+        } else {
+          setError(`Authentication failed: ${result.error}`);
+        }
+      } else if (result?.url) {
+        window.location.href = result.url;
       }
     } catch (err) {
-      console.error('Sign in error:', err);
-      setError('An unexpected error occurred');
+      console.error('Unexpected error during sign in:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
