@@ -13,7 +13,7 @@ export default function SignIn() {
     try {
       setIsLoading(true);
       setError(null);
-      await signIn('google', { callbackUrl: '/dashboard' });
+      await signIn('google', { callbackUrl: '/' });
     } catch (err) {
       setError('Failed to sign in with Google. Please try again.');
     } finally {
