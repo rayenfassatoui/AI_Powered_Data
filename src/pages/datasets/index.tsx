@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiEdit2, FiDownload, FiTrash2, FiGrid, FiList, FiSearch, FiFilter, FiDatabase, FiCalendar, FiColumns, FiChevronDown } from 'react-icons/fi';
 import { format, parseISO } from 'date-fns';
+import * as XLSX from 'xlsx';
 
 interface Dataset {
   id: string;
@@ -16,19 +17,44 @@ interface Dataset {
   updatedAt: string;
   rowCount?: number;
   columnCount?: number;
+  data?: any[];
 }
+
+const exportToExcel = (data: any[], filename: string) => {
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Data');
+  XLSX.writeFile(wb, `${filename}.xlsx`);
+};
+
+const exportToCSV = (data: any[], filename: string) => {
+  const ws = XLSX.utils.json_to_sheet(data);
+  const csv = XLSX.utils.sheet_to_csv(ws);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
 
 export default function DatasetsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [datasets, setDatasets] = useState<Dataset[]>([]);
+  const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'date'>('date');
   const [filterType, setFilterType] = useState<string>('all');
-  const [exportingDataset, setExportingDataset] = useState<string | null>(null);
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -70,7 +96,7 @@ export default function DatasetsPage() {
 
   const handleExport = async (dataset: Dataset, format: 'csv' | 'json' | 'excel') => {
     try {
-      setExportingDataset(dataset.id);
+      setSelectedDataset(dataset);
       const response = await fetch(`/api/datasets/${dataset.id}/export?format=${format}`, {
         method: 'GET',
         headers: {
@@ -99,7 +125,22 @@ export default function DatasetsPage() {
       console.error('Export error:', err);
       setError(err instanceof Error ? err.message : 'Error exporting dataset');
     } finally {
-      setExportingDataset(null);
+      setSelectedDataset(null);
+    }
+  };
+
+  const handleDatasetSelect = async (datasetId: string) => {
+    try {
+      const response = await fetch(`/api/datasets/${datasetId}`);
+      if (!response.ok) throw new Error('Failed to fetch dataset data');
+      const result = await response.json();
+      
+      const dataset = datasets.find(d => d.id === datasetId);
+      if (dataset) {
+        setSelectedDataset({ ...dataset, data: result.data });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch dataset data');
     }
   };
 
@@ -235,25 +276,28 @@ export default function DatasetsPage() {
                       stiffness: 300,
                       damping: 25
                     }}
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.02, y: -5 }}
                     className="group"
                   >
-                    <div className="relative bg-white backdrop-blur-lg bg-opacity-80 rounded-2xl border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-radial from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative bg-white backdrop-blur-xl bg-opacity-90 rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                      {/* Decorative elements */}
+                      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 blur-3xl transform rotate-12 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-gradient-to-tr from-green-500/10 via-blue-500/10 to-purple-500/10 blur-3xl transform -rotate-12 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
                       <div className="relative p-6 z-10">
                         {/* Dataset Header */}
                         <div className="flex items-center justify-between mb-6">
                           <div className="flex items-center space-x-4">
                             <motion.div 
-                              className="p-3 bg-gradient-to-br from-blue-500/10 to-blue-500/30 rounded-xl"
-                              whileHover={{ scale: 1.1 }}
+                              className="p-3 bg-gradient-to-br from-blue-500/20 to-indigo-500/30 rounded-xl shadow-lg shadow-blue-500/20"
+                              whileHover={{ scale: 1.1, rotate: 5 }}
                               transition={{ type: "spring", stiffness: 400, damping: 17 }}
                             >
                               <FiDatabase className="w-6 h-6 text-blue-600" />
                             </motion.div>
                             <div>
                               <motion.h3 
-                                className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200"
+                                className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:from-indigo-600 group-hover:to-purple-600 transition-all duration-300"
                                 layout
                               >
                                 {dataset.name}
@@ -264,7 +308,7 @@ export default function DatasetsPage() {
                             </div>
                           </div>
                           <motion.span 
-                            className="px-4 py-1.5 text-xs font-medium bg-gradient-to-r from-blue-50 via-blue-100/50 to-blue-50 text-blue-700 rounded-full border border-blue-200/50 shadow-sm"
+                            className="px-4 py-1.5 text-xs font-medium bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 text-indigo-700 rounded-full border border-indigo-100/50 shadow-sm"
                             whileHover={{ scale: 1.05 }}
                             layout
                           >
@@ -275,31 +319,31 @@ export default function DatasetsPage() {
                         {/* Dataset Info */}
                         <div className="space-y-4 mb-6">
                           <motion.div 
-                            className="flex items-center text-sm text-gray-600 bg-gray-50/50 rounded-lg p-2.5 group-hover:bg-gray-100/50 transition-colors duration-200"
+                            className="flex items-center text-sm text-gray-600 bg-gradient-to-r from-gray-50 to-white rounded-lg p-3 group-hover:from-blue-50/50 group-hover:to-indigo-50/50 transition-colors duration-300 shadow-sm"
                             whileHover={{ x: 5 }}
                           >
-                            <FiCalendar className="w-4 h-4 mr-2 text-blue-500" />
+                            <FiCalendar className="w-4 h-4 mr-2 text-indigo-500" />
                             <span>Updated {dataset.updatedAt ? format(parseISO(dataset.updatedAt), 'MMM d, yyyy') : 'Never'}</span>
                           </motion.div>
                           {dataset.rowCount && dataset.columnCount && (
                             <motion.div 
-                              className="flex items-center text-sm text-gray-600 bg-gray-50/50 rounded-lg p-2.5 group-hover:bg-gray-100/50 transition-colors duration-200"
+                              className="flex items-center text-sm text-gray-600 bg-gradient-to-r from-gray-50 to-white rounded-lg p-3 group-hover:from-blue-50/50 group-hover:to-indigo-50/50 transition-colors duration-300 shadow-sm"
                               whileHover={{ x: 5 }}
                             >
-                              <FiColumns className="w-4 h-4 mr-2 text-blue-500" />
+                              <FiColumns className="w-4 h-4 mr-2 text-indigo-500" />
                               <span>{dataset.rowCount.toLocaleString()} rows × {dataset.columnCount.toLocaleString()} columns</span>
                             </motion.div>
                           )}
                         </div>
 
                         {/* Progress Bar */}
-                        <div className="relative w-full h-2 bg-gray-100 rounded-full mb-6 overflow-hidden">
+                        <div className="relative w-full h-2.5 bg-gray-100 rounded-full mb-6 overflow-hidden">
                           <motion.div 
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full"
                             initial={{ width: 0 }}
                             animate={{ 
                               width: `${Math.min((dataset.rowCount || 0) / 1000 * 100, 100)}%`,
-                              transition: { duration: 1, ease: "easeOut" }
+                              transition: { duration: 1.5, ease: "easeOut" }
                             }}
                           />
                           <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-white/0 via-white/50 to-white/0 animate-shimmer" />
@@ -308,38 +352,40 @@ export default function DatasetsPage() {
                         {/* Action Buttons */}
                         <div className="flex flex-wrap gap-3">
                           <motion.button
-                            whileHover={{ scale: 1.02 }}
+                            whileHover={{ scale: 1.02, y: -2 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => router.push(`/datasets/${dataset.id}`)}
-                            className="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-blue-200/50 shadow-sm text-sm font-medium rounded-xl text-blue-700 bg-gradient-to-b from-white to-blue-50 hover:from-blue-50 hover:to-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/20 transition-all duration-200"
+                            className="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-blue-200/50 shadow-md text-sm font-medium rounded-xl text-blue-700 bg-gradient-to-br from-white via-blue-50 to-blue-100/50 hover:from-blue-50 hover:via-blue-100 hover:to-indigo-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/20 transition-all duration-300"
                           >
                             <FiEdit2 className="w-4 h-4 mr-2" />
                             Edit
                           </motion.button>
 
-                          <div className="relative flex-1">
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => setExportingDataset(dataset.id)}
-                              className="w-full inline-flex items-center justify-center px-4 py-2.5 border border-green-200/50 shadow-sm text-sm font-medium rounded-xl text-green-700 bg-gradient-to-b from-white to-green-50 hover:from-green-50 hover:to-green-100 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/20 transition-all duration-200"
-                            >
-                              <FiDownload className={`w-4 h-4 mr-2 ${exportingDataset === dataset.id ? 'animate-spin' : ''}`} />
-                              Export
-                              <motion.div
-                                animate={{ rotate: exportingDataset === dataset.id ? 180 : 0 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <FiChevronDown className="ml-2 w-4 h-4" />
-                              </motion.div>
-                            </motion.button>
-                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.02, y: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={async () => {
+                              try {
+                                const response = await fetch(`/api/datasets/${dataset.id}`);
+                                if (!response.ok) throw new Error('Failed to fetch dataset');
+                                const result = await response.json();
+                                exportToExcel(result.data, dataset.name);
+                              } catch (err) {
+                                console.error('Download error:', err);
+                                setError(err instanceof Error ? err.message : 'Error downloading dataset');
+                              }
+                            }}
+                            className="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-green-200/50 shadow-md text-sm font-medium rounded-xl text-green-700 bg-gradient-to-br from-white via-green-50 to-green-100/50 hover:from-green-50 hover:via-green-100 hover:to-emerald-100 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/20 transition-all duration-300"
+                          >
+                            <FiDownload className="w-4 h-4 mr-2" />
+                            Download Excel
+                          </motion.button>
 
                           <motion.button
-                            whileHover={{ scale: 1.02 }}
+                            whileHover={{ scale: 1.02, y: -2 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => handleDelete(dataset.id)}
-                            className="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-red-200/50 shadow-sm text-sm font-medium rounded-xl text-red-700 bg-gradient-to-b from-white to-red-50 hover:from-red-50 hover:to-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/20 transition-all duration-200"
+                            className="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-red-200/50 shadow-md text-sm font-medium rounded-xl text-red-700 bg-gradient-to-br from-white via-red-50 to-red-100/50 hover:from-red-50 hover:via-red-100 hover:to-pink-100 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/20 transition-all duration-300"
                           >
                             <FiTrash2 className="w-4 h-4 mr-2" />
                             Delete
