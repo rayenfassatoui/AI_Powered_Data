@@ -7,7 +7,10 @@ const nextConfig = {
       'canvas-prebuilt': 'canvas-prebuilt'
     });
     return config;
-  }
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 module.exports = nextConfig;

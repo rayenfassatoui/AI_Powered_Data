@@ -19,7 +19,7 @@ import {
 import { Line, Bar, Scatter, Pie, Radar } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
 import { VisualizationConfig } from "@/components/VisualizationConfig";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useVisualization, VisualizationType } from "@/hooks/useVisualization";

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import type { VisualizationType } from '@/types/visualization';
 
