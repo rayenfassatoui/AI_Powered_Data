@@ -44,25 +44,25 @@ export default function Home() {
 
     const testimonials = [
       {
-        name: "Sarah Johnson",
-        role: "Data Scientist",
-        company: "TechCorp",
+        name: "Ashref Ben Abdallah",
+        role: "Data Engineer",
+        company: "TechForge",
         content: "DataViz AI has transformed how we analyze and present our data. The AI-powered insights are game-changing.",
-        avatar: "/avatars/avatar1.jpg"
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ashref&backgroundColor=b6e3f4&radius=50"
       },
       {
-        name: "Michael Chen",
-        role: "Product Manager",
-        company: "InnovateLabs",
+        name: "Ahmed Balti",
+        role: "ML Engineer",
+        company: "DataSphere",
         content: "The speed and accuracy of the visualizations are impressive. It's become an essential tool for our team.",
-        avatar: "/avatars/avatar2.jpg"
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ahmed&backgroundColor=c0aede&radius=50"
       },
       {
-        name: "Emily Rodriguez",
-        role: "Business Analyst",
-        company: "DataDrive",
+        name: "Khayredine Gabsi",
+        role: "Data Scientist",
+        company: "AI Solutions",
         content: "The automated insights have helped us discover patterns we would have missed otherwise.",
-        avatar: "/avatars/avatar3.jpg"
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=khayredine&backgroundColor=b6e3f4&radius=50"
       }
     ];
 
@@ -129,12 +129,15 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <Button
                 onClick={() => router.push('/auth/signin')}
-                className="px-6 py-2 text-sm shadow-md shadow-blue-500/20"
+                className="inline-flex items-center px-6 py-2.5 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/20 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/30"
               >
                 Sign In
+                <FiArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </motion.div>
           </div>
@@ -320,8 +323,10 @@ export default function Home() {
                       <Image
                         src={testimonial.avatar}
                         alt={testimonial.name}
-                        layout="fill"
-                        objectFit="cover"
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                        unoptimized
                       />
                     </div>
                     <div>
