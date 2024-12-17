@@ -1,31 +1,30 @@
-import React from "react";
-import { cn } from "@/utils/cn";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { HTMLAttributes, forwardRef } from "react";
 
-interface CardProps extends HTMLMotionProps<"div"> {
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
   gradient?: boolean;
   hoverEffect?: boolean;
 }
 
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ gradient, hoverEffect, className, children, ...props }, ref) => {
+const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className, gradient, hoverEffect, children, ...props }, ref) => {
     return (
-      <motion.div
+      <div
         ref={ref}
         className={cn(
-          "rounded-xl p-4 bg-white",
+          "rounded-lg bg-white shadow-sm border border-gray-200",
           gradient && "bg-gradient-to-br from-white to-gray-50",
-          hoverEffect && "hover:shadow-lg transition-shadow duration-200",
+          hoverEffect && "transition-transform duration-200 hover:scale-[1.02]",
           className
         )}
         {...props}
       >
         {children}
-      </motion.div>
+      </div>
     );
   }
 );
 
 Card.displayName = "Card";
 
-export default Card;
+export { Card };

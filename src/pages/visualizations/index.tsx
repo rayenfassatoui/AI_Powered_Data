@@ -18,12 +18,12 @@ import {
 } from "chart.js";
 import { Line, Bar, Scatter, Pie, Radar } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
-import VisualizationConfig from "@/components/VisualizationConfig";
-import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
+import { VisualizationConfig } from "@/components/VisualizationConfig";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useVisualization, VisualizationType } from "@/hooks/useVisualization";
-import { ChartComponent } from "../../components/ChartComponent";
+import { ChartComponent } from "@/components/ChartComponent";
 import ChartCustomization, {
   ChartConfiguration,
 } from "@/components/ChartCustomization";
@@ -147,6 +147,8 @@ export default function VisualizationsPage() {
       if (!response.ok) throw new Error("Failed to fetch dataset data");
       const result = await response.json();
 
+      console.log('Raw dataset data:', result);
+
       // Parse dates in the dataset
       const parsedData = result.data.map((item: any) => {
         const parsed = { ...item };
@@ -158,6 +160,9 @@ export default function VisualizationsPage() {
         return parsed;
       });
 
+      console.log('Parsed dataset data:', parsedData);
+      console.log('Detected column types:', detectColumnTypes(parsedData));
+
       setDatasetData(parsedData);
       setColumnTypes(detectColumnTypes(parsedData));
 
@@ -165,6 +170,7 @@ export default function VisualizationsPage() {
       setVisualizations([]);
       setActiveVisualization(null);
     } catch (err) {
+      console.error('Error in handleDatasetSelect:', err);
       setError(
         err instanceof Error ? err.message : "Failed to fetch dataset data"
       );
@@ -175,9 +181,13 @@ export default function VisualizationsPage() {
 
   const addVisualization = () => {
     if (!datasetData.length) {
+      console.log('No dataset data available');
       setError("Please select a dataset first");
       return;
     }
+
+    console.log('Current dataset data:', datasetData);
+    console.log('Current column types:', columnTypes);
 
     const newViz = {
       id: Math.random().toString(36).substr(2, 9),
@@ -192,6 +202,7 @@ export default function VisualizationsPage() {
       },
     };
 
+    console.log('Adding new visualization:', newViz);
     setVisualizations([...visualizations, newViz]);
     setActiveVisualization(newViz.id);
   };
@@ -315,16 +326,42 @@ export default function VisualizationsPage() {
             Data Visualizations
           </h1>
           <div className="flex gap-4">
-            <Button onClick={addVisualization} variant="primary" size="lg">
+            <Button
+              onClick={addVisualization}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg flex items-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
               Add Visualization
             </Button>
             {visualizations.length > 0 && (
               <Button 
                 onClick={() => downloadPDF(visualizations, chartConfigs)} 
-                variant="outline" 
-                size="lg"
-                className="text-gray-900 border-gray-300 hover:bg-gray-50"
+                variant="outline"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 font-medium px-6 py-2 rounded-lg flex items-center gap-2"
               >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586L7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
+                    clipRule="evenodd"
+                  />
+                </svg>
                 Export to PDF
               </Button>
             )}

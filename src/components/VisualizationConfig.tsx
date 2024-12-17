@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from './ui/Button';
+import { Button } from './ui/button';
 import { motion } from 'framer-motion';
 import type { VisualizationType } from '@/types/visualization';
 
@@ -58,14 +58,14 @@ const visualizationTypes = [
   }
 ];
 
-const VisualizationConfig: React.FC<VisualizationConfigProps> = ({
+export function VisualizationConfig({
   type,
   columns,
   columnTypes,
   mapping,
   onTypeChange,
   onMappingChange,
-}) => {
+}: VisualizationConfigProps) {
   const selectedType = visualizationTypes.find(vizType => vizType.value === type);
 
   const getFilteredColumns = (key: string) => {
@@ -75,14 +75,45 @@ const VisualizationConfig: React.FC<VisualizationConfigProps> = ({
     if (key === 'valueColumn' || key === 'xColumn' || key === 'yColumn') {
       return columns.filter(col => columnTypes[col] === 'number');
     }
+    if (key === 'categoryColumn') {
+      return columns.filter(col => columnTypes[col] === 'string');
+    }
     return columns;
   };
 
   const handleMappingChange = (key: string, value: string) => {
-    onMappingChange({
-      ...mapping,
-      [key]: value
-    });
+    const newMapping = { ...mapping, [key]: value };
+    
+    // Auto-select first available column for required fields
+    if (selectedType) {
+      selectedType.requiredColumns.forEach(({ key: reqKey }) => {
+        if (!newMapping[reqKey]) {
+          const availableColumns = getFilteredColumns(reqKey);
+          if (availableColumns.length > 0) {
+            newMapping[reqKey] = availableColumns[0];
+          }
+        }
+      });
+    }
+    
+    onMappingChange(newMapping);
+  };
+
+  const handleTypeChange = (newType: VisualizationType) => {
+    onTypeChange(newType);
+    
+    // Initialize mapping with first available columns for the new type
+    const typeConfig = visualizationTypes.find(vt => vt.value === newType);
+    if (typeConfig) {
+      const initialMapping: Record<string, string> = {};
+      typeConfig.requiredColumns.forEach(({ key }) => {
+        const availableColumns = getFilteredColumns(key);
+        if (availableColumns.length > 0) {
+          initialMapping[key] = availableColumns[0];
+        }
+      });
+      onMappingChange(initialMapping);
+    }
   };
 
   return (
@@ -99,15 +130,14 @@ const VisualizationConfig: React.FC<VisualizationConfigProps> = ({
               whileTap={{ scale: 0.98 }}
             >
               <button
-                onClick={() => {
-                  onTypeChange(value as VisualizationType);
-                  onMappingChange({});
-                }}
-                className={`chart-type-button ${
-                  type === value ? 'chart-type-button-active' : ''
+                onClick={() => handleTypeChange(value as VisualizationType)}
+                className={`w-full text-left px-4 py-3 rounded-lg border ${
+                  type === value 
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 hover:border-blue-200 hover:bg-blue-50/50'
                 }`}
               >
-                <div className="flex flex-col items-start">
+                <div className="flex flex-col">
                   <span className="font-medium text-gray-900">{label}</span>
                   <span className="text-sm text-gray-500">{description}</span>
                 </div>
@@ -130,7 +160,7 @@ const VisualizationConfig: React.FC<VisualizationConfigProps> = ({
               <select
                 value={mapping[key] || ''}
                 onChange={(e) => handleMappingChange(key, e.target.value)}
-                className="chart-control w-full"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">Select a column</option>
                 {getFilteredColumns(key).map((column) => (
@@ -147,18 +177,15 @@ const VisualizationConfig: React.FC<VisualizationConfigProps> = ({
       <div className="pt-4">
         <Button
           variant="outline"
-          size="md"
-          className="w-full text-red-800 border-red-600 bg-red-100 hover:text-red-700 hover:bg-red-300"
+          className="w-full text-red-600 border-red-200 hover:bg-red-50"
           onClick={() => {
             onMappingChange({});
             onTypeChange('timeSeries');
           }}
         >
-          Reset
+          Reset Configuration
         </Button>
       </div>
     </div>
   );
-};
-
-export default VisualizationConfig;
+}

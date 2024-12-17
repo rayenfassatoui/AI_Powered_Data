@@ -19,14 +19,44 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
   mapping,
   chartConfig
 }) => {
-  const { chartData, chartOptions } = useVisualization({
+  console.log('ChartComponent props:', {
+    id,
+    type,
+    dataLength: data?.length,
+    mapping,
+    chartConfig
+  });
+
+  const { chartData, chartOptions, error } = useVisualization({
     data,
     type,
     mapping,
     chartConfig,
   });
 
-  // ... existing code ...
+  console.log('Visualization results:', {
+    hasChartData: !!chartData,
+    hasChartOptions: !!chartOptions,
+    error
+  });
+
+  if (error) {
+    console.error('Chart error:', error);
+    return (
+      <div className="w-full min-h-[400px] flex items-center justify-center bg-red-50 text-red-600 rounded-lg">
+        {error}
+      </div>
+    );
+  }
+
+  if (!chartData || !chartOptions) {
+    return (
+      <div className="w-full min-h-[400px] flex items-center justify-center bg-gray-50 text-gray-500">
+        Please configure the chart settings
+      </div>
+    );
+  }
+
   const defaultConfig: ChartConfiguration = {
     title: '',
     aspectRatio: 2,
@@ -46,12 +76,8 @@ export const ChartComponent: React.FC<ChartComponentProps> = ({
     data: {},
     description: '',
   };
-// ... existing code ...
-  const config = { ...defaultConfig, ...chartConfig };
 
-  if (!chartData || !chartOptions) {
-    return <div>Loading chart...</div>;
-  }
+  const config = { ...defaultConfig, ...chartConfig };
 
   const getChartComponent = () => {
     switch (type) {

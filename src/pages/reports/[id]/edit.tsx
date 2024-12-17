@@ -1,3 +1,4 @@
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -11,10 +12,36 @@ interface Report {
   datasetId?: string;
 }
 
-export default function EditReport() {
+interface PageProps {
+  id: string;
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: 'blocking'
+  };
+};
+
+export const getStaticProps: GetStaticProps<PageProps> = async ({ params }) => {
+  const id = params?.id;
+  if (!id || typeof id !== 'string') {
+    return {
+      notFound: true
+    };
+  }
+
+  return {
+    props: {
+      id
+    },
+    revalidate: 60 // Revalidate every 60 seconds
+  };
+};
+
+export default function EditReport({ id }: PageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { id } = router.query;
   
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);

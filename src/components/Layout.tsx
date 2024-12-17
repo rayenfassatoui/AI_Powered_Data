@@ -1,25 +1,26 @@
-import React from 'react';
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
+import { ReactNode } from "react";
+import Navbar from "./Navbar";
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <Sidebar />
-      <div className="md:pl-64">
-        <main className="py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            {children}
+      <main className="pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {children}
+        </div>
+      </main>
+      <footer className="bg-white border-t border-gray-200 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="text-center text-sm text-gray-500">
+            <p>© {new Date().getFullYear()} DataAI. All rights reserved.</p>
           </div>
-        </main>
-      </div>
+        </div>
+      </footer>
     </div>
   );
-};
-
-export default Layout;
+}

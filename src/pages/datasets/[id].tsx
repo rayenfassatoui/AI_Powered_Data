@@ -1,3 +1,4 @@
+import { GetStaticProps, GetStaticPaths } from 'next';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
@@ -22,9 +23,35 @@ interface DataCleanerProps {
   datasetId: string;
 }
 
-export default function DatasetDetail() {
+interface PageProps {
+  id: string;
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: 'blocking'
+  };
+};
+
+export const getStaticProps: GetStaticProps<PageProps> = async ({ params }) => {
+  const id = params?.id;
+  if (!id || typeof id !== 'string') {
+    return {
+      notFound: true
+    };
+  }
+
+  return {
+    props: {
+      id
+    },
+    revalidate: 60 // Revalidate every 60 seconds
+  };
+};
+
+export default function DatasetDetail({ id }: PageProps) {
   const router = useRouter();
-  const { id } = router.query;
   const { data: session, status } = useSession();
   const [dataset, setDataset] = useState<Dataset | null>(null);
   const [error, setError] = useState<string | null>(null);
