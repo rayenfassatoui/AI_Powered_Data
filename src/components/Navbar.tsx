@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { Button } from "./ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMenu, FiX, FiHome, FiPieChart, FiUpload, FiList, FiUser, FiLogOut } from "react-icons/fi";
+import { FiMenu, FiX, FiHome, FiPieChart, FiUpload, FiList, FiUser, FiLogOut, FiSearch } from "react-icons/fi";
 
 const navigation = [
   { name: "Home", href: "/", icon: FiHome },
@@ -22,6 +22,17 @@ export default function Navbar() {
     open: { opacity: 1, x: 0 },
     closed: { opacity: 0, x: "-100%" },
   };
+
+  const SignOutButton = () => (
+    <Button
+      onClick={() => signOut()}
+      variant="ghost"
+      className="flex items-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+    >
+      <FiLogOut className="w-4 h-4" />
+      <span>Sign Out</span>
+    </Button>
+  );
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200">
@@ -71,14 +82,7 @@ export default function Navbar() {
                     {session.user?.name}
                   </span>
                 </div>
-                <Button
-                  variant="ghost"
-                  onClick={() => signOut()}
-                  className="flex items-center space-x-2"
-                >
-                  <FiLogOut />
-                  <span>Sign out</span>
-                </Button>
+                <SignOutButton />
               </div>
             ) : (
               <Button
@@ -133,16 +137,7 @@ export default function Navbar() {
                 );
               })}
               {session ? (
-                <button
-                  onClick={() => {
-                    signOut();
-                    setIsOpen(false);
-                  }}
-                  className="flex w-full items-center px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                >
-                  <FiLogOut className="mr-2" />
-                  Sign out
-                </button>
+                <SignOutButton />
               ) : (
                 <button
                   onClick={() => {
