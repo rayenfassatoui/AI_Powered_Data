@@ -20,7 +20,7 @@ Object.entries(requiredEnvVars).forEach(([key, value]) => {
 });
 
 export const authOptions: NextAuthOptions = {
-  debug: true,
+  debug: process.env.NODE_ENV === 'development',
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
