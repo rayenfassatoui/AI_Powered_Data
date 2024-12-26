@@ -4,12 +4,18 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { Button } from "./ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMenu, FiX, FiHome, FiPieChart, FiUpload, FiList, FiUser, FiLogOut, FiSearch, FiBarChart2 } from "react-icons/fi";
+import { FiMenu, FiX, FiBarChart2, FiUpload, FiDatabase, FiPieChart } from "react-icons/fi";
 
-const navigation = [
-  { name: "Features", href: "#features", icon: FiHome },
-  { name: "Tools", href: "#tools", icon: FiPieChart },
-  { name: "Pricing", href: "#pricing", icon: FiList },
+const publicNavigation = [
+  { name: "Features", href: "#features" },
+  { name: "Tools", href: "#tools" },
+  { name: "Pricing", href: "#pricing" },
+];
+
+const authenticatedNavigation = [
+  { name: "Upload Dataset", href: "/upload", icon: FiUpload },
+  { name: "datasets", href: "/datasets", icon: FiDatabase },
+  { name: "visualizations", href: "/visualizations", icon: FiPieChart },
 ];
 
 export default function Navbar() {
@@ -22,82 +28,81 @@ export default function Navbar() {
     closed: { opacity: 0, x: "-100%" },
   };
 
-  const SignOutButton = () => (
-    <Button
-      onClick={() => signOut()}
-      variant="ghost"
-      className="flex items-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-    >
-      <FiLogOut className="w-4 h-4" />
-      <span>Sign Out</span>
-    </Button>
-  );
+  const navigation = session ? authenticatedNavigation : publicNavigation;
 
   return (
-    <nav className="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+    <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
-                <FiBarChart2 className="w-6 h-6 text-white transform rotate-12" />
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-[#6366F1] flex items-center justify-center">
+                <FiBarChart2 className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+              <span className="text-xl font-semibold text-gray-900">
                 DataViz AI
               </span>
             </Link>
           </div>
 
           {/* Center Navigation */}
-          <div className="hidden sm:flex flex-1 justify-center">
-            <div className="flex space-x-8">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
+          <div className="hidden md:flex items-center justify-center flex-1 space-x-12">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-base text-gray-600 hover:text-gray-900 flex items-center space-x-2"
+              >
+                {item.icon && <item.icon className="w-5 h-5" />}
+                <span>{item.name}</span>
+              </Link>
+            ))}
           </div>
 
-          {/* User Menu */}
-          <div className="hidden sm:flex sm:items-center">
+          {/* User Profile */}
+          <div className="hidden md:flex items-center space-x-4">
             {session ? (
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  {session.user?.image && (
+                <div className="flex items-center space-x-3">
+                  {session.user?.image ? (
                     <img
                       src={session.user.image}
                       alt={session.user.name || "User"}
-                      className="h-8 w-8 rounded-full"
+                      className="h-10 w-10 rounded-full bg-[#6366F1] text-white flex items-center justify-center"
                     />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-lg font-medium">
+                      {session.user?.name?.charAt(0) || "U"}
+                    </div>
                   )}
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-base font-medium text-gray-900">
                     {session.user?.name}
                   </span>
                 </div>
-                <SignOutButton />
+                <Button
+                  onClick={() => signOut()}
+                  variant="ghost"
+                  className="text-gray-600"
+                >
+                  Sign Out
+                </Button>
               </div>
             ) : (
               <Button
                 onClick={() => signIn("google")}
-                className="flex items-center space-x-2"
+                className="bg-[#6366F1] text-white px-4 py-2 rounded-lg"
               >
-                <FiUser />
-                <span>Sign in</span>
+                Sign In
               </Button>
             )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center sm:hidden">
+          <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="inline-flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-gray-500"
             >
               {isOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
             </button>
@@ -109,36 +114,34 @@ export default function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="sm:hidden"
+            className="md:hidden"
             initial="closed"
             animate="open"
             exit="closed"
             variants={menuVariants}
           >
-            <div className="pt-2 pb-3 space-y-1">
+            <div className="px-4 pt-2 pb-3 space-y-1 bg-white border-b border-gray-100">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="flex items-center px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  className="flex items-center space-x-2 px-3 py-2 text-base text-gray-600"
                   onClick={() => setIsOpen(false)}
                 >
-                  {item.name}
+                  {item.icon && <item.icon className="w-5 h-5" />}
+                  <span>{item.name}</span>
                 </Link>
               ))}
-              {session ? (
-                <SignOutButton />
-              ) : (
-                <button
+              {!session && (
+                <Button
                   onClick={() => {
                     signIn("google");
                     setIsOpen(false);
                   }}
-                  className="flex w-full items-center px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  className="w-full mt-2 bg-[#6366F1] text-white px-4 py-2 rounded-lg"
                 >
-                  <FiUser className="mr-2" />
-                  Sign in
-                </button>
+                  Sign In
+                </Button>
               )}
             </div>
           </motion.div>
