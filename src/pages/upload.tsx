@@ -41,10 +41,25 @@ export default function UploadPage() {
   };
 
   const handleFile = (file: File) => {
-    if (file.type !== "text/csv" && !file.type.includes("spreadsheet")) {
+    const allowedTypes = [
+      'text/csv',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel'
+    ];
+    
+    if (!allowedTypes.includes(file.type) && 
+        !file.name.endsWith('.csv') && 
+        !file.name.endsWith('.xlsx') && 
+        !file.name.endsWith('.xls')) {
       setError("Please upload a CSV or Excel file");
       return;
     }
+    
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+      setError("File size must be less than 10MB");
+      return;
+    }
+    
     setFile(file);
     setError(null);
   };
@@ -54,20 +69,46 @@ export default function UploadPage() {
 
     try {
       setUploading(true);
+      setError(null);
+      
+      console.log('Uploading file:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', file, file.name);
+
+      console.log('FormData created with file');
 
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData
+        body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
+      console.log('Response status:', response.status);
+
+      let result;
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
+      try {
+        result = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Error parsing response:', e);
+        throw new Error('Invalid server response');
       }
 
+      if (!response.ok) {
+        console.error('Upload failed:', result);
+        throw new Error(result?.message || 'Upload failed');
+      }
+
+      console.log('Upload successful:', result);
       router.push('/datasets');
     } catch (err) {
+      console.error('Upload error:', err);
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setUploading(false);
