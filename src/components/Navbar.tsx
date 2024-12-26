@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { Button } from "./ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMenu, FiX, FiHome, FiPieChart, FiUpload, FiList, FiUser, FiLogOut, FiSearch } from "react-icons/fi";
+import { FiMenu, FiX, FiHome, FiPieChart, FiUpload, FiList, FiUser, FiLogOut, FiSearch, FiBarChart2 } from "react-icons/fi";
 
 const navigation = [
   { name: "Home", href: "/", icon: FiHome },
@@ -41,8 +41,13 @@ export default function Navbar() {
           {/* Logo and Desktop Navigation */}
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
-                DataAI
+              <Link href="/" className="flex items-center space-x-2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
+                  <FiBarChart2 className="w-6 h-6 text-white transform rotate-12" />
+                </div>
+                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                  DataViz AI
+                </span>
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

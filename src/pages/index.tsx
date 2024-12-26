@@ -844,14 +844,41 @@ export default function Home() {
         </div>
 
         {/* Stats Section */}
-        <div className="relative z-10 py-32 bg-gradient-to-b from-blue-50 to-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 py-32 overflow-hidden">
+          {/* Background decorative elements */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/80"></div>
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full filter blur-3xl opacity-30 animate-pulse"></div>
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-400/20 to-pink-400/20 rounded-full filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
+          </div>
+
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                { number: "10K+", label: "Active Users" },
-                { number: "1M+", label: "Visualizations Created" },
-                { number: "500+", label: "Enterprise Clients" },
-                { number: "99.9%", label: "Uptime" }
+                { 
+                  number: "10K+", 
+                  label: "Active Users",
+                  icon: FiUsers,
+                  gradient: "from-blue-500 to-indigo-500"
+                },
+                { 
+                  number: "1M+", 
+                  label: "Visualizations Created",
+                  icon: FiPieChart,
+                  gradient: "from-indigo-500 to-purple-500"
+                },
+                { 
+                  number: "500+", 
+                  label: "Enterprise Clients",
+                  icon: FiGlobe,
+                  gradient: "from-purple-500 to-pink-500"
+                },
+                { 
+                  number: "99.9%", 
+                  label: "Uptime",
+                  icon: FiZap,
+                  gradient: "from-pink-500 to-red-500"
+                }
               ].map((stat, index) => (
                 <motion.div
                   key={index}
@@ -859,12 +886,25 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="text-center"
+                  whileHover={{ y: -5 }}
+                  className="relative group"
                 >
-                  <div className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    {stat.number}
+                  <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200/50 text-center">
+                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl" 
+                         style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center mb-4 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                        <stat.icon className="w-6 h-6 text-white" />
+                      </div>
+                      
+                      <div className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
+                        {stat.number}
+                      </div>
+                      <div className="text-gray-600 font-medium">{stat.label}</div>
+                    </div>
                   </div>
-                  <div className="text-gray-600 mt-2">{stat.label}</div>
                 </motion.div>
               ))}
             </div>
@@ -872,91 +912,121 @@ export default function Home() {
         </div>
 
         {/* CTA Section */}
-        <div className="relative z-10 py-32 bg-white">
+        <div className="relative z-10 py-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl overflow-hidden">
-              <div className="absolute inset-0">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 mix-blend-multiply"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-900/30 to-transparent"></div>
-              </div>
-              <div className="relative py-16 px-8 sm:px-16 text-center">
-                <motion.h2
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="text-3xl sm:text-4xl font-bold text-white mb-6"
-                >
-                  Ready to Transform Your Data?
-                </motion.h2>
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.1 }}
-                  className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto"
-                >
-                  Join thousands of data teams who are already using DataViz AI to unlock insights.
-                </motion.p>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <Button
+            <div className="relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl transform rotate-1"></div>
+              <div className="relative bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl -rotate-1">
+                <div className="absolute inset-0">
+                  <div className="absolute inset-0 bg-grid-white/10 bg-[length:20px_20px]"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-900/30 to-transparent"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-[800px] h-[800px] bg-blue-500/30 rounded-full filter blur-3xl opacity-50 animate-blob"></div>
+                  </div>
+                </div>
+                
+                <div className="relative py-16 px-8 sm:px-16 text-center">
+                  <motion.h2
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-3xl sm:text-4xl font-bold text-white mb-6"
+                  >
+                    Ready to Transform Your Data?
+                  </motion.h2>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 }}
+                    className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto"
+                  >
+                    Join thousands of data teams who are already using DataViz AI to unlock insights.
+                  </motion.p>
+                  <motion.button
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => router.push('/auth/signin')}
-                    className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg font-medium rounded-xl shadow-lg"
+                    className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-xl bg-white text-blue-600 hover:bg-blue-50 shadow-xl shadow-blue-500/30 transition-all duration-200"
                   >
                     Get Started Free
-                    <FiArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </motion.div>
+                    <FiArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <footer className="relative z-10 bg-gray-900 text-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Product</h3>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Features</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Security</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Enterprise</a></li>
-                </ul>
+        <footer className="relative z-10 bg-gray-900 pt-24 pb-12 overflow-hidden">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/95 to-gray-900/90"></div>
+          </div>
+
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-8 mb-16">
+              <div className="col-span-2 md:col-span-1">
+                <div className="flex items-center space-x-2 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
+                    <FiBarChart2 className="w-6 h-6 text-white transform rotate-12" />
+                  </div>
+                  <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+                    DataViz AI
+                  </span>
+                </div>
+                <p className="text-gray-400 mb-6">
+                  Transform your data into actionable insights with AI-powered analytics.
+                </p>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Company</h3>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">About</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Careers</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Resources</h3>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">API Reference</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Guides</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Support</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Connect</h3>
-                <div className="flex space-x-4">
+
+              {[
+                {
+                  title: "Product",
+                  links: ["Features", "Pricing", "Security", "Enterprise"]
+                },
+                {
+                  title: "Company",
+                  links: ["About", "Blog", "Careers", "Contact"]
+                },
+                {
+                  title: "Resources",
+                  links: ["Documentation", "API Reference", "Guides", "Support"]
+                }
+              ].map((section, index) => (
+                <div key={index}>
+                  <h3 className="text-lg font-semibold text-white mb-6">{section.title}</h3>
+                  <ul className="space-y-4">
+                    {section.links.map((link, linkIndex) => (
+                      <li key={linkIndex}>
+                        <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
+                          {link}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-8 mt-8 border-t border-gray-800">
+              <div className="flex flex-col md:flex-row justify-between items-center">
+                <p className="text-gray-400 text-sm">
+                  © 2024 DataViz AI. All rights reserved.
+                </p>
+                <div className="flex space-x-6 mt-4 md:mt-0">
                   <a 
                     href="https://github.com/rayenfassatoui" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="text-gray-400 hover:text-white transition-colors"
                   >
-                    <FiGithub className="w-6 h-6" />
+                    <FiGithub className="w-5 h-5" />
                   </a>
                   <a 
                     href="https://www.linkedin.com/in/rayenfassatoui" 
@@ -964,13 +1034,10 @@ export default function Home() {
                     rel="noopener noreferrer" 
                     className="text-gray-400 hover:text-white transition-colors"
                   >
-                    <FiLinkedin className="w-6 h-6" />
+                    <FiLinkedin className="w-5 h-5" />
                   </a>
                 </div>
               </div>
-            </div>
-            <div className="mt-16 pt-8 border-t border-gray-800 text-center text-gray-400">
-              <p>&copy; 2024 DataViz AI. All rights reserved.</p>
             </div>
           </div>
         </footer>
