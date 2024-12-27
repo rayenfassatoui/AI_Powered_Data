@@ -29,20 +29,29 @@ export default async function handler(
       return res.status(401).json({ message: 'Unauthorized - Please sign in' });
     }
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    // Create uploads directory in /tmp for production
+    const uploadsDir = process.env.NODE_ENV === 'production' 
+      ? path.join('/tmp', 'uploads')
+      : path.join(process.cwd(), 'uploads');
+
+    try {
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+    } catch (error) {
+      console.error('Error creating uploads directory:', error);
+      return res.status(500).json({ message: 'Server configuration error' });
     }
 
     console.log('Processing upload request...');
+    console.log('Uploads directory:', uploadsDir);
 
-    // Configure formidable with more permissive options
+    // Configure formidable
     const form = formidable({
       maxFileSize: 10 * 1024 * 1024, // 10MB
       uploadDir: uploadsDir,
       keepExtensions: true,
-      multiples: false, // Ensure only single file upload
+      multiples: false,
     });
 
     // Parse the form
@@ -58,29 +67,17 @@ export default async function handler(
       });
     });
 
-    // Log the received files
-    console.log('Received files:', {
-      fileKeys: Object.keys(files),
-      fileDetails: Object.entries(files).map(([key, file]) => ({
-        key,
-        name: Array.isArray(file) ? file[0].originalFilename : file.originalFilename,
-        type: Array.isArray(file) ? file[0].mimetype : file.mimetype,
-      }))
-    });
-
     const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
     if (!uploadedFile) {
-      console.error('No file uploaded:', {
-        filesReceived: Object.keys(files),
-        uploadedFile: 'missing'
-      });
+      console.error('No file uploaded');
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
     console.log('Processing file:', {
       name: uploadedFile.originalFilename,
       type: uploadedFile.mimetype,
-      size: uploadedFile.size
+      size: uploadedFile.size,
+      path: uploadedFile.filepath
     });
 
     // Read and process file
@@ -97,19 +94,20 @@ export default async function handler(
         const parseResult = Papa.parse(csvText, { 
           header: true,
           skipEmptyLines: true,
-          transformHeader: (header) => header.trim()
+          transformHeader: (header) => header.trim(),
+          error: (error) => {
+            console.error('CSV parsing error:', error);
+            throw new Error('Error parsing CSV file: ' + error.message);
+          }
         });
         
         if (parseResult.errors.length > 0) {
           console.error('CSV parsing errors:', parseResult.errors);
-          return res.status(400).json({ 
-            message: 'Error parsing CSV file',
-            errors: parseResult.errors
-          });
+          throw new Error('Error parsing CSV file: ' + parseResult.errors[0].message);
         }
         
         data = parseResult.data;
-      } else {
+      } else if (fileExt === '.xlsx' || fileExt === '.xls') {
         console.log('Processing as Excel file');
         try {
           const workbook = XLSX.read(fileContent);
@@ -117,13 +115,14 @@ export default async function handler(
           data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
         } catch (error) {
           console.error('Excel parsing error:', error);
-          return res.status(400).json({ message: 'Error parsing Excel file' });
+          throw new Error('Error parsing Excel file: ' + (error instanceof Error ? error.message : 'Unknown error'));
         }
+      } else {
+        throw new Error('Unsupported file format. Please upload a CSV or Excel file.');
       }
 
       if (!Array.isArray(data) || data.length === 0) {
-        console.error('No valid data found in file');
-        return res.status(400).json({ message: 'No valid data found in file' });
+        throw new Error('No valid data found in file');
       }
 
       console.log('Parsed data rows:', data.length);
@@ -141,7 +140,11 @@ export default async function handler(
       console.log('Dataset saved to database:', dataset.id);
 
       // Clean up the temporary file
-      fs.unlinkSync(uploadedFile.filepath);
+      try {
+        fs.unlinkSync(uploadedFile.filepath);
+      } catch (error) {
+        console.error('Error deleting temporary file:', error);
+      }
 
       return res.status(200).json({ 
         message: 'File uploaded successfully',
@@ -149,9 +152,8 @@ export default async function handler(
       });
     } catch (error) {
       console.error('File processing error:', error);
-      return res.status(500).json({ 
-        message: 'Error processing file',
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return res.status(400).json({ 
+        message: error instanceof Error ? error.message : 'Error processing file',
       });
     }
   } catch (error) {

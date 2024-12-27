@@ -1,16 +1,35 @@
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
-import { FiUpload, FiDatabase, FiBarChart2, FiArrowRight, FiPieChart, FiTrendingUp, FiGrid, FiLayers, FiZap, FiShield, FiCpu, FiGlobe, FiUsers, FiAward, FiGithub, FiLinkedin, FiCheck, FiPlay } from 'react-icons/fi';
-import Layout from '@/components/Layout';
-import { Button } from '@/components/ui/Button';
-import Image from 'next/image';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { motion } from "framer-motion";
+import {
+  FiUpload,
+  FiDatabase,
+  FiBarChart2,
+  FiArrowRight,
+  FiPieChart,
+  FiTrendingUp,
+  FiGrid,
+  FiLayers,
+  FiZap,
+  FiShield,
+  FiCpu,
+  FiGlobe,
+  FiUsers,
+  FiAward,
+  FiGithub,
+  FiLinkedin,
+  FiCheck,
+  FiPlay,
+} from "react-icons/fi";
+import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/Button";
+import Image from "next/image";
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
@@ -28,18 +47,18 @@ export default function Home() {
       {
         icon: FiZap,
         title: "Lightning Fast",
-        description: "Process and visualize your data in seconds"
+        description: "Process and visualize your data in seconds",
       },
       {
         icon: FiCpu,
         title: "AI-Powered",
-        description: "Advanced analytics with machine learning"
+        description: "Advanced analytics with machine learning",
       },
       {
         icon: FiShield,
         title: "Secure",
-        description: "Enterprise-grade security for your data"
-      }
+        description: "Enterprise-grade security for your data",
+      },
     ];
 
     const testimonials = [
@@ -47,23 +66,29 @@ export default function Home() {
         name: "Ashref Ben Abdallah",
         role: "Data Engineer",
         company: "TechForge",
-        content: "DataViz AI has transformed how we analyze and present our data. The AI-powered insights are game-changing.",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ashref&backgroundColor=b6e3f4&radius=50"
+        content:
+          "DataViz AI has transformed how we analyze and present our data. The AI-powered insights are game-changing.",
+        avatar:
+          "https://api.dicebear.com/7.x/avataaars/svg?seed=ashref&backgroundColor=b6e3f4&radius=50",
       },
       {
         name: "Ahmed Balti",
         role: "ML Engineer",
         company: "DataSphere",
-        content: "The speed and accuracy of the visualizations are impressive. It's become an essential tool for our team.",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ahmed&backgroundColor=c0aede&radius=50"
+        content:
+          "The speed and accuracy of the visualizations are impressive. It's become an essential tool for our team.",
+        avatar:
+          "https://api.dicebear.com/7.x/avataaars/svg?seed=ahmed&backgroundColor=c0aede&radius=50",
       },
       {
         name: "Khayredine Gabsi",
         role: "Data Scientist",
         company: "AI Solutions",
-        content: "The automated insights have helped us discover patterns we would have missed otherwise.",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=khayredine&backgroundColor=b6e3f4&radius=50"
-      }
+        content:
+          "The automated insights have helped us discover patterns we would have missed otherwise.",
+        avatar:
+          "https://api.dicebear.com/7.x/avataaars/svg?seed=khayredine&backgroundColor=b6e3f4&radius=50",
+      },
     ];
 
     const pricingPlans = [
@@ -74,9 +99,9 @@ export default function Home() {
           "5 Datasets",
           "Basic Visualizations",
           "Community Support",
-          "1GB Storage"
+          "1GB Storage",
         ],
-        highlighted: false
+        highlighted: false,
       },
       {
         name: "Pro",
@@ -88,9 +113,9 @@ export default function Home() {
           "Priority Support",
           "10GB Storage",
           "AI-Powered Insights",
-          "Custom Branding"
+          "Custom Branding",
         ],
-        highlighted: true
+        highlighted: true,
       },
       {
         name: "Enterprise",
@@ -101,10 +126,10 @@ export default function Home() {
           "Unlimited Storage",
           "API Access",
           "SSO Integration",
-          "Custom Features"
+          "Custom Features",
         ],
-        highlighted: false
-      }
+        highlighted: false,
+      },
     ];
 
     return (
@@ -139,11 +164,26 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   className="hidden md:flex items-center space-x-6"
                 >
-                  <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-                  <a href="#tools" className="text-gray-600 hover:text-blue-600 transition-colors">Tools</a>
-                  <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
+                  <a
+                    href="#features"
+                    className="text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    Features
+                  </a>
+                  <a
+                    href="#tools"
+                    className="text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    Tools
+                  </a>
+                  <a
+                    href="#pricing"
+                    className="text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    Pricing
+                  </a>
                 </motion.div>
-                
+
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -151,7 +191,7 @@ export default function Home() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <button
-                    onClick={() => router.push('/auth/signin')}
+                    onClick={() => router.push("/auth/signin")}
                     className="group relative inline-flex items-center px-6 py-2.5 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
                   >
                     <span className="relative z-10 flex items-center">
@@ -213,10 +253,12 @@ export default function Home() {
                 </h1>
 
                 <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-                  Harness the power of AI to analyze, visualize, and understand your data
-                  like never before. Create stunning visualizations in{" "}
+                  Harness the power of AI to analyze, visualize, and understand
+                  your data like never before. Create stunning visualizations in{" "}
                   <span className="relative inline-block px-2">
-                    <span className="relative z-10 font-semibold text-blue-600">minutes</span>
+                    <span className="relative z-10 font-semibold text-blue-600">
+                      minutes
+                    </span>
                     <div className="absolute inset-0 bg-blue-100 transform -rotate-2 rounded"></div>
                   </span>
                 </p>
@@ -225,7 +267,7 @@ export default function Home() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => router.push('/auth/signin')}
+                    onClick={() => router.push("/auth/signin")}
                     className="group relative inline-flex items-center px-8 py-4 text-lg font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/30 transition-all duration-200"
                   >
                     <span className="relative z-10 flex items-center">
@@ -249,15 +291,21 @@ export default function Home() {
                 <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
                   <div className="flex items-center justify-center space-x-2 px-6 py-4 bg-white/80 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/50">
                     <FiShield className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700">Enterprise-grade security</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Enterprise-grade security
+                    </span>
                   </div>
                   <div className="flex items-center justify-center space-x-2 px-6 py-4 bg-white/80 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/50">
                     <FiUsers className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700">10,000+ users</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      10,000+ users
+                    </span>
                   </div>
                   <div className="flex items-center justify-center space-x-2 px-6 py-4 bg-white/80 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/50">
                     <FiAward className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700">4.9/5 rating</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      4.9/5 rating
+                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -274,20 +322,20 @@ export default function Home() {
                   icon: FiZap,
                   title: "Lightning Fast",
                   description: "Process and visualize your data in seconds",
-                  gradient: "from-yellow-500 to-orange-500"
+                  gradient: "from-yellow-500 to-orange-500",
                 },
                 {
                   icon: FiCpu,
                   title: "AI-Powered",
                   description: "Advanced analytics with machine learning",
-                  gradient: "from-blue-500 to-indigo-500"
+                  gradient: "from-blue-500 to-indigo-500",
                 },
                 {
                   icon: FiShield,
                   title: "Secure",
                   description: "Enterprise-grade security for your data",
-                  gradient: "from-green-500 to-emerald-500"
-                }
+                  gradient: "from-green-500 to-emerald-500",
+                },
               ].map((feature, index) => (
                 <motion.div
                   key={index}
@@ -299,22 +347,25 @@ export default function Home() {
                   className="relative group"
                 >
                   <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200/50 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300" 
-                         style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}>
-                    </div>
-                    
+                    <div
+                      className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                      style={{
+                        backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))`,
+                      }}
+                    ></div>
+
                     <div className="relative z-10">
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                      <div
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
+                      >
                         <feature.icon className="w-7 h-7 text-white" />
                       </div>
-                      
+
                       <h3 className="text-xl font-bold text-gray-900 mb-3">
                         {feature.title}
                       </h3>
-                      
-                      <p className="text-gray-600">
-                        {feature.description}
-                      </p>
+
+                      <p className="text-gray-600">{feature.description}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -334,19 +385,39 @@ export default function Home() {
               className="text-center mb-16"
             >
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Powerful Tools at Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Fingertips</span>
+                Powerful Tools at Your{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                  Fingertips
+                </span>
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Everything you need to transform your data into actionable insights
+                Everything you need to transform your data into actionable
+                insights
               </p>
             </motion.div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                { icon: FiPieChart, label: "Charts", gradient: "from-purple-500 to-pink-500" },
-                { icon: FiTrendingUp, label: "Analytics", gradient: "from-blue-500 to-cyan-500" },
-                { icon: FiCpu, label: "AI Insights", gradient: "from-green-500 to-emerald-500" },
-                { icon: FiGrid, label: "Dashboard", gradient: "from-orange-500 to-red-500" }
+                {
+                  icon: FiPieChart,
+                  label: "Charts",
+                  gradient: "from-purple-500 to-pink-500",
+                },
+                {
+                  icon: FiTrendingUp,
+                  label: "Analytics",
+                  gradient: "from-blue-500 to-cyan-500",
+                },
+                {
+                  icon: FiCpu,
+                  label: "AI Insights",
+                  gradient: "from-green-500 to-emerald-500",
+                },
+                {
+                  icon: FiGrid,
+                  label: "Dashboard",
+                  gradient: "from-orange-500 to-red-500",
+                },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -358,7 +429,9 @@ export default function Home() {
                   className="group relative"
                 >
                   <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/50 flex flex-col items-center gap-4">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                    <div
+                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
+                    >
                       <item.icon className="w-8 h-8 text-white" />
                     </div>
                     <span className="font-semibold text-gray-900">
@@ -382,10 +455,15 @@ export default function Home() {
               className="text-center mb-20"
             >
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Why Choose <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">DataViz AI</span>?
+                Why Choose{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                  DataViz AI
+                </span>
+                ?
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Experience the future of data analytics with our cutting-edge features and capabilities.
+                Experience the future of data analytics with our cutting-edge
+                features and capabilities.
               </p>
             </motion.div>
 
@@ -394,45 +472,71 @@ export default function Home() {
                 {
                   icon: FiZap,
                   title: "Real-time Processing",
-                  description: "Process large datasets instantly with our optimized algorithms and cloud infrastructure.",
-                  features: ["Instant data processing", "Live collaboration", "Real-time updates"],
-                  gradient: "from-yellow-500 to-orange-500"
+                  description:
+                    "Process large datasets instantly with our optimized algorithms and cloud infrastructure.",
+                  features: [
+                    "Instant data processing",
+                    "Live collaboration",
+                    "Real-time updates",
+                  ],
+                  gradient: "from-yellow-500 to-orange-500",
                 },
                 {
                   icon: FiCpu,
                   title: "Advanced AI Analytics",
-                  description: "Leverage state-of-the-art machine learning models for deeper insights.",
-                  features: ["Predictive analytics", "Pattern recognition", "Anomaly detection"],
-                  gradient: "from-blue-500 to-indigo-500"
+                  description:
+                    "Leverage state-of-the-art machine learning models for deeper insights.",
+                  features: [
+                    "Predictive analytics",
+                    "Pattern recognition",
+                    "Anomaly detection",
+                  ],
+                  gradient: "from-blue-500 to-indigo-500",
                 },
                 {
                   icon: FiShield,
                   title: "Enterprise Security",
-                  description: "Bank-grade security measures to protect your sensitive data.",
-                  features: ["End-to-end encryption", "SOC 2 compliance", "Regular security audits"],
-                  gradient: "from-green-500 to-emerald-500"
+                  description:
+                    "Bank-grade security measures to protect your sensitive data.",
+                  features: [
+                    "End-to-end encryption",
+                    "SOC 2 compliance",
+                    "Regular security audits",
+                  ],
+                  gradient: "from-green-500 to-emerald-500",
                 },
                 {
                   icon: FiGlobe,
                   title: "Global Scalability",
-                  description: "Scale your data operations globally with our distributed infrastructure.",
-                  features: ["Multi-region support", "Auto-scaling", "High availability"],
-                  gradient: "from-purple-500 to-pink-500"
+                  description:
+                    "Scale your data operations globally with our distributed infrastructure.",
+                  features: [
+                    "Multi-region support",
+                    "Auto-scaling",
+                    "High availability",
+                  ],
+                  gradient: "from-purple-500 to-pink-500",
                 },
                 {
                   icon: FiUsers,
                   title: "Team Collaboration",
-                  description: "Work seamlessly with your team in real-time on data projects.",
-                  features: ["Role-based access", "Version control", "Activity tracking"],
-                  gradient: "from-red-500 to-pink-500"
+                  description:
+                    "Work seamlessly with your team in real-time on data projects.",
+                  features: [
+                    "Role-based access",
+                    "Version control",
+                    "Activity tracking",
+                  ],
+                  gradient: "from-red-500 to-pink-500",
                 },
                 {
                   icon: FiAward,
                   title: "Industry Excellence",
-                  description: "Award-winning platform trusted by leading organizations worldwide.",
+                  description:
+                    "Award-winning platform trusted by leading organizations worldwide.",
                   features: ["99.9% uptime", "24/7 support", "Regular updates"],
-                  gradient: "from-teal-500 to-cyan-500"
-                }
+                  gradient: "from-teal-500 to-cyan-500",
+                },
               ].map((feature, index) => (
                 <motion.div
                   key={index}
@@ -445,24 +549,34 @@ export default function Home() {
                 >
                   <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-100 overflow-hidden">
                     {/* Gradient background effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300" style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}></div>
-                    
+                    <div
+                      className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300"
+                      style={{
+                        backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))`,
+                      }}
+                    ></div>
+
                     <div className="relative z-10">
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                      <div
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
+                      >
                         <feature.icon className="w-7 h-7 text-white" />
                       </div>
-                      
+
                       <h3 className="text-xl font-bold text-gray-900 mb-3">
                         {feature.title}
                       </h3>
-                      
+
                       <p className="text-gray-600 mb-6">
                         {feature.description}
                       </p>
-                      
+
                       <ul className="space-y-2">
                         {feature.features.map((item, i) => (
-                          <li key={i} className="flex items-center text-gray-600">
+                          <li
+                            key={i}
+                            className="flex items-center text-gray-600"
+                          >
                             <FiCheck className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
                             <span>{item}</span>
                           </li>
@@ -487,10 +601,14 @@ export default function Home() {
               className="text-center mb-20"
             >
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Powerful Tools at Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Fingertips</span>
+                Powerful Tools at Your{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                  Fingertips
+                </span>
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                A comprehensive suite of tools designed to transform your data into actionable insights.
+                A comprehensive suite of tools designed to transform your data
+                into actionable insights.
               </p>
             </motion.div>
 
@@ -498,36 +616,56 @@ export default function Home() {
               {[
                 {
                   title: "Interactive Dashboards",
-                  description: "Create stunning, interactive dashboards with drag-and-drop simplicity.",
+                  description:
+                    "Create stunning, interactive dashboards with drag-and-drop simplicity.",
                   icon: FiGrid,
-                  features: ["Custom layouts", "Real-time updates", "Interactive filters"],
+                  features: [
+                    "Custom layouts",
+                    "Real-time updates",
+                    "Interactive filters",
+                  ],
                   gradient: "from-purple-500 to-indigo-500",
-                  image: "/dashboard-preview.png"
+                  image: "/dashboard-preview.png",
                 },
                 {
                   title: "Advanced Analytics",
-                  description: "Powerful analytics tools to uncover hidden patterns in your data.",
+                  description:
+                    "Powerful analytics tools to uncover hidden patterns in your data.",
                   icon: FiTrendingUp,
-                  features: ["Statistical analysis", "Trend detection", "Forecasting"],
+                  features: [
+                    "Statistical analysis",
+                    "Trend detection",
+                    "Forecasting",
+                  ],
                   gradient: "from-blue-500 to-cyan-500",
-                  image: "/analytics-preview.png"
+                  image: "/analytics-preview.png",
                 },
                 {
                   title: "Data Visualization",
-                  description: "Transform complex data into beautiful, insightful visualizations.",
+                  description:
+                    "Transform complex data into beautiful, insightful visualizations.",
                   icon: FiPieChart,
-                  features: ["Multiple chart types", "Custom styling", "Export options"],
+                  features: [
+                    "Multiple chart types",
+                    "Custom styling",
+                    "Export options",
+                  ],
                   gradient: "from-green-500 to-teal-500",
-                  image: "/visualization-preview.png"
+                  image: "/visualization-preview.png",
                 },
                 {
                   title: "AI-Powered Insights",
-                  description: "Let AI uncover insights and patterns automatically.",
+                  description:
+                    "Let AI uncover insights and patterns automatically.",
                   icon: FiCpu,
-                  features: ["Automated analysis", "Smart suggestions", "Predictive insights"],
+                  features: [
+                    "Automated analysis",
+                    "Smart suggestions",
+                    "Predictive insights",
+                  ],
                   gradient: "from-orange-500 to-red-500",
-                  image: "/ai-preview.png"
-                }
+                  image: "/ai-preview.png",
+                },
               ].map((tool, index) => (
                 <motion.div
                   key={index}
@@ -537,21 +675,26 @@ export default function Home() {
                   transition={{ delay: index * 0.1 }}
                   className="group relative bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300" style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}></div>
-                  
+                  <div
+                    className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300"
+                    style={{
+                      backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))`,
+                    }}
+                  ></div>
+
                   <div className="p-8">
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                    <div
+                      className={`w-14 h-14 rounded-xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
+                    >
                       <tool.icon className="w-7 h-7 text-white" />
                     </div>
-                    
+
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">
                       {tool.title}
                     </h3>
-                    
-                    <p className="text-gray-600 mb-6">
-                      {tool.description}
-                    </p>
-                    
+
+                    <p className="text-gray-600 mb-6">{tool.description}</p>
+
                     <ul className="space-y-3 mb-6">
                       {tool.features.map((feature, i) => (
                         <li key={i} className="flex items-center text-gray-600">
@@ -560,7 +703,7 @@ export default function Home() {
                         </li>
                       ))}
                     </ul>
-                    
+
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -592,12 +735,18 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-20"
             >
-              <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider mb-2 block">Testimonials</span>
+              <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider mb-2 block">
+                Testimonials
+              </span>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Loved by Data Teams <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Everywhere</span>
+                Loved by Data Teams{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                  Everywhere
+                </span>
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Join thousands of satisfied users who have transformed their data analysis workflow.
+                Join thousands of satisfied users who have transformed their
+                data analysis workflow.
               </p>
             </motion.div>
 
@@ -618,11 +767,15 @@ export default function Home() {
                   <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100">
                     {/* Gradient overlay on hover */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                    
+
                     {/* Quote icon */}
                     <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z" />
                       </svg>
                     </div>
 
@@ -641,8 +794,18 @@ export default function Home() {
                             />
                           </div>
                           <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-md">
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            <svg
+                              className="w-3 h-3 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
                             </svg>
                           </div>
                         </div>
@@ -690,13 +853,15 @@ export default function Home() {
               className="mt-16 text-center"
             >
               <p className="text-gray-600 mb-6">
-                Join over <span className="font-semibold text-blue-600">10,000+</span> data professionals who trust DataViz AI
+                Join over{" "}
+                <span className="font-semibold text-blue-600">10,000+</span>{" "}
+                data professionals who trust DataViz AI
               </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg shadow-blue-500/30"
-                onClick={() => router.push('/auth/signin')}
+                onClick={() => router.push("/auth/signin")}
               >
                 Get Started Free
                 <FiArrowRight className="ml-2 h-5 w-5" />
@@ -722,12 +887,19 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-20"
             >
-              <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider mb-2 block">Pricing Plans</span>
+              <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider mb-2 block">
+                Pricing Plans
+              </span>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Simple, <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Transparent</span> Pricing
+                Simple,{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                  Transparent
+                </span>{" "}
+                Pricing
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Choose the perfect plan for your data visualization needs. No hidden fees.
+                Choose the perfect plan for your data visualization needs. No
+                hidden fees.
               </p>
             </motion.div>
 
@@ -742,19 +914,22 @@ export default function Home() {
                   whileHover={{ y: -5, scale: 1.02 }}
                   className="relative group"
                 >
-                  <div className={`relative rounded-2xl p-8 ${
-                    plan.highlighted
-                      ? 'bg-gradient-to-b from-blue-600 to-indigo-600 shadow-xl shadow-blue-500/30'
-                      : 'bg-white/80 backdrop-blur-xl shadow-xl border border-gray-100'
-                  }`}>
+                  <div
+                    className={`relative rounded-2xl p-8 ${
+                      plan.highlighted
+                        ? "bg-gradient-to-b from-blue-600 to-indigo-600 shadow-xl shadow-blue-500/30"
+                        : "bg-white/80 backdrop-blur-xl shadow-xl border border-gray-100"
+                    }`}
+                  >
                     {/* Decorative elements */}
-                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl" 
-                         style={{ 
-                           backgroundImage: plan.highlighted 
-                             ? 'linear-gradient(to bottom right, rgba(255,255,255,0.2), rgba(255,255,255,0.1))' 
-                             : 'linear-gradient(to bottom right, var(--tw-gradient-stops))'
-                         }}>
-                    </div>
+                    <div
+                      className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl"
+                      style={{
+                        backgroundImage: plan.highlighted
+                          ? "linear-gradient(to bottom right, rgba(255,255,255,0.2), rgba(255,255,255,0.1))"
+                          : "linear-gradient(to bottom right, var(--tw-gradient-stops))",
+                      }}
+                    ></div>
 
                     {plan.highlighted && (
                       <div className="absolute -top-5 left-0 right-0 mx-auto w-32 py-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full text-white text-sm font-semibold shadow-lg transform -rotate-1">
@@ -763,22 +938,40 @@ export default function Home() {
                     )}
 
                     <div className="relative z-10">
-                      <h3 className={`text-2xl font-bold mb-4 ${plan.highlighted ? 'text-white' : 'text-gray-900'}`}>
+                      <h3
+                        className={`text-2xl font-bold mb-4 ${
+                          plan.highlighted ? "text-white" : "text-gray-900"
+                        }`}
+                      >
                         {plan.name}
                       </h3>
 
                       <div className="mb-6">
-                        <span className={`text-5xl font-bold ${plan.highlighted ? 'text-white' : 'text-gray-900'}`}>
+                        <span
+                          className={`text-5xl font-bold ${
+                            plan.highlighted ? "text-white" : "text-gray-900"
+                          }`}
+                        >
                           {plan.price}
                         </span>
                         {plan.period && (
-                          <span className={`text-xl ${plan.highlighted ? 'text-blue-100' : 'text-gray-600'}`}>
+                          <span
+                            className={`text-xl ${
+                              plan.highlighted
+                                ? "text-blue-100"
+                                : "text-gray-600"
+                            }`}
+                          >
                             {plan.period}
                           </span>
                         )}
                       </div>
 
-                      <div className={`h-px w-full ${plan.highlighted ? 'bg-white/20' : 'bg-gray-200'} my-6`}></div>
+                      <div
+                        className={`h-px w-full ${
+                          plan.highlighted ? "bg-white/20" : "bg-gray-200"
+                        } my-6`}
+                      ></div>
 
                       <ul className="space-y-4 mb-8">
                         {plan.features.map((feature, featureIndex) => (
@@ -786,13 +979,27 @@ export default function Home() {
                             key={featureIndex}
                             initial={{ opacity: 0, x: -10 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 + featureIndex * 0.1 }}
-                            className={`flex items-center ${plan.highlighted ? 'text-white' : 'text-gray-600'}`}
+                            transition={{
+                              delay: index * 0.1 + featureIndex * 0.1,
+                            }}
+                            className={`flex items-center ${
+                              plan.highlighted ? "text-white" : "text-gray-600"
+                            }`}
                           >
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${
-                              plan.highlighted ? 'bg-blue-400/20' : 'bg-blue-100'
-                            }`}>
-                              <FiCheck className={`w-3 h-3 ${plan.highlighted ? 'text-white' : 'text-blue-600'}`} />
+                            <div
+                              className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${
+                                plan.highlighted
+                                  ? "bg-blue-400/20"
+                                  : "bg-blue-100"
+                              }`}
+                            >
+                              <FiCheck
+                                className={`w-3 h-3 ${
+                                  plan.highlighted
+                                    ? "text-white"
+                                    : "text-blue-600"
+                                }`}
+                              />
                             </div>
                             {feature}
                           </motion.li>
@@ -802,11 +1009,11 @@ export default function Home() {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => router.push('/auth/signin')}
+                        onClick={() => router.push("/auth/signin")}
                         className={`w-full py-4 px-6 rounded-xl font-medium transition-all duration-200 flex items-center justify-center group ${
                           plan.highlighted
-                            ? 'bg-white text-blue-600 hover:bg-blue-50'
-                            : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
+                            ? "bg-white text-blue-600 hover:bg-blue-50"
+                            : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
                         }`}
                       >
                         Get Started
@@ -827,7 +1034,11 @@ export default function Home() {
               className="mt-20 text-center"
             >
               <p className="text-gray-600 mb-6">
-                Have questions? Check out our <span className="text-blue-600 font-semibold hover:underline cursor-pointer">FAQ</span> or contact our support team.
+                Have questions? Check out our{" "}
+                <span className="text-blue-600 font-semibold hover:underline cursor-pointer">
+                  FAQ
+                </span>{" "}
+                or contact our support team.
               </p>
               <div className="flex items-center justify-center space-x-6">
                 <div className="flex items-center text-gray-600">
@@ -855,30 +1066,30 @@ export default function Home() {
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                { 
-                  number: "10K+", 
+                {
+                  number: "10K+",
                   label: "Active Users",
                   icon: FiUsers,
-                  gradient: "from-blue-500 to-indigo-500"
+                  gradient: "from-blue-500 to-indigo-500",
                 },
-                { 
-                  number: "1M+", 
+                {
+                  number: "1M+",
                   label: "Visualizations Created",
                   icon: FiPieChart,
-                  gradient: "from-indigo-500 to-purple-500"
+                  gradient: "from-indigo-500 to-purple-500",
                 },
-                { 
-                  number: "500+", 
+                {
+                  number: "500+",
                   label: "Enterprise Clients",
                   icon: FiGlobe,
-                  gradient: "from-purple-500 to-pink-500"
+                  gradient: "from-purple-500 to-pink-500",
                 },
-                { 
-                  number: "99.9%", 
+                {
+                  number: "99.9%",
                   label: "Uptime",
                   icon: FiZap,
-                  gradient: "from-pink-500 to-red-500"
-                }
+                  gradient: "from-pink-500 to-red-500",
+                },
               ].map((stat, index) => (
                 <motion.div
                   key={index}
@@ -890,19 +1101,26 @@ export default function Home() {
                   className="relative group"
                 >
                   <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200/50 text-center">
-                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl" 
-                         style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}>
-                    </div>
-                    
+                    <div
+                      className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl"
+                      style={{
+                        backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))`,
+                      }}
+                    ></div>
+
                     <div className="relative z-10">
-                      <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center mb-4 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                      <div
+                        className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center mb-4 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
+                      >
                         <stat.icon className="w-6 h-6 text-white" />
                       </div>
-                      
+
                       <div className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
                         {stat.number}
                       </div>
-                      <div className="text-gray-600 font-medium">{stat.label}</div>
+                      <div className="text-gray-600 font-medium">
+                        {stat.label}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -924,7 +1142,7 @@ export default function Home() {
                     <div className="w-[800px] h-[800px] bg-blue-500/30 rounded-full filter blur-3xl opacity-50 animate-blob"></div>
                   </div>
                 </div>
-                
+
                 <div className="relative py-16 px-8 sm:px-16 text-center">
                   <motion.h2
                     initial={{ opacity: 0, y: 20 }}
@@ -941,7 +1159,8 @@ export default function Home() {
                     transition={{ delay: 0.1 }}
                     className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto"
                   >
-                    Join thousands of data teams who are already using DataViz AI to unlock insights.
+                    Join thousands of data teams who are already using DataViz
+                    AI to unlock insights.
                   </motion.p>
                   <motion.button
                     initial={{ opacity: 0, y: 20 }}
@@ -950,7 +1169,7 @@ export default function Home() {
                     transition={{ delay: 0.2 }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => router.push('/auth/signin')}
+                    onClick={() => router.push("/auth/signin")}
                     className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-xl bg-white text-blue-600 hover:bg-blue-50 shadow-xl shadow-blue-500/30 transition-all duration-200"
                   >
                     Get Started Free
@@ -981,30 +1200,41 @@ export default function Home() {
                   </span>
                 </div>
                 <p className="text-gray-400 mb-6">
-                  Transform your data into actionable insights with AI-powered analytics.
+                  Transform your data into actionable insights with AI-powered
+                  analytics.
                 </p>
               </div>
 
               {[
                 {
                   title: "Product",
-                  links: ["Features", "Pricing", "Security", "Enterprise"]
+                  links: ["Features", "Pricing", "Security", "Enterprise"],
                 },
                 {
                   title: "Company",
-                  links: ["About", "Blog", "Careers", "Contact"]
+                  links: ["About", "Blog", "Careers", "Contact"],
                 },
                 {
                   title: "Resources",
-                  links: ["Documentation", "API Reference", "Guides", "Support"]
-                }
+                  links: [
+                    "Documentation",
+                    "API Reference",
+                    "Guides",
+                    "Support",
+                  ],
+                },
               ].map((section, index) => (
                 <div key={index}>
-                  <h3 className="text-lg font-semibold text-white mb-6">{section.title}</h3>
+                  <h3 className="text-lg font-semibold text-white mb-6">
+                    {section.title}
+                  </h3>
                   <ul className="space-y-4">
                     {section.links.map((link, linkIndex) => (
                       <li key={linkIndex}>
-                        <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
+                        <a
+                          href="#"
+                          className="text-gray-400 hover:text-white transition-colors duration-200"
+                        >
                           {link}
                         </a>
                       </li>
@@ -1020,18 +1250,18 @@ export default function Home() {
                   © 2024 DataViz AI. All rights reserved.
                 </p>
                 <div className="flex space-x-6 mt-4 md:mt-0">
-                  <a 
-                    href="https://github.com/rayenfassatoui" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href="https://github.com/rayenfassatoui"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-gray-400 hover:text-white transition-colors"
                   >
                     <FiGithub className="w-5 h-5" />
                   </a>
-                  <a 
-                    href="https://www.linkedin.com/in/rayenfassatoui" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href="https://www.linkedin.com/in/rayenfassatoui"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-gray-400 hover:text-white transition-colors"
                   >
                     <FiLinkedin className="w-5 h-5" />
@@ -1048,24 +1278,24 @@ export default function Home() {
   const features = [
     {
       icon: FiUpload,
-      title: 'Upload Data',
-      description: 'Import your Excel or CSV files',
-      path: '/upload',
-      color: 'blue'
+      title: "Upload Data",
+      description: "Import your Excel or CSV files",
+      path: "/upload",
+      color: "blue",
     },
     {
       icon: FiDatabase,
-      title: 'Manage Datasets',
-      description: 'View and organize your data',
-      path: '/datasets',
-      color: 'indigo'
+      title: "Manage Datasets",
+      description: "View and organize your data",
+      path: "/datasets",
+      color: "indigo",
     },
     {
       icon: FiBarChart2,
-      title: 'Visualize',
-      description: 'Create interactive charts',
-      path: '/visualizations',
-      color: 'purple'
+      title: "Visualize",
+      description: "Create interactive charts",
+      path: "/visualizations",
+      color: "purple",
     },
   ];
 
@@ -1077,7 +1307,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-purple-500/5"></div>
           <div className="absolute -top-24 -right-20 w-96 h-96 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 blur-3xl rounded-full transform rotate-12"></div>
           <div className="absolute -bottom-24 -left-20 w-96 h-96 bg-gradient-to-tr from-green-500/10 via-blue-500/10 to-purple-500/10 blur-3xl rounded-full transform -rotate-12"></div>
-          
+
           <div className="relative max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1125,20 +1355,26 @@ export default function Home() {
 
                   <div className="relative">
                     <div className="flex items-center gap-4 mb-4">
-                      <motion.div 
+                      <motion.div
                         className={`p-3 bg-gradient-to-br from-${feature.color}-500/20 to-${feature.color}-600/30 rounded-xl shadow-lg shadow-${feature.color}-500/20`}
                         whileHover={{ scale: 1.1, rotate: 5 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 17,
+                        }}
                       >
-                        <feature.icon className={`h-8 w-8 text-${feature.color}-600`} />
+                        <feature.icon
+                          className={`h-8 w-8 text-${feature.color}-600`}
+                        />
                       </motion.div>
-                      <h2 className={`text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-${feature.color}-600 to-${feature.color}-800`}>
+                      <h2
+                        className={`text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-${feature.color}-600 to-${feature.color}-800`}
+                      >
                         {feature.title}
                       </h2>
                     </div>
-                    <p className="text-gray-600 mb-6">
-                      {feature.description}
-                    </p>
+                    <p className="text-gray-600 mb-6">{feature.description}</p>
                     <div className="flex items-center text-blue-600 group-hover:translate-x-2 transition-transform duration-300">
                       <span className="text-sm font-medium">Get Started</span>
                       <FiArrowRight className="ml-2 h-4 w-4" />

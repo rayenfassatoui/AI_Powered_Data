@@ -78,22 +78,21 @@ export default function UploadPage() {
       });
 
       const formData = new FormData();
-      formData.append('file', file, file.name);
-
-      console.log('FormData created with file');
+      formData.append('file', file);
 
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
-      console.log('Response status:', response.status);
-
       let result;
-      const responseText = await response.text();
-      console.log('Response text:', responseText);
-      
       try {
+        const responseText = await response.text();
+        console.log('Response:', {
+          status: response.status,
+          text: responseText
+        });
+        
         result = JSON.parse(responseText);
       } catch (e) {
         console.error('Error parsing response:', e);
@@ -101,7 +100,6 @@ export default function UploadPage() {
       }
 
       if (!response.ok) {
-        console.error('Upload failed:', result);
         throw new Error(result?.message || 'Upload failed');
       }
 
