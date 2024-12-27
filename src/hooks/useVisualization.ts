@@ -1,203 +1,156 @@
-import { useState, useEffect } from 'react';
-import { ChartData, ChartOptions } from 'chart.js';
-import {
-  processTimeSeriesData,
-  processDistributionData,
-  processCorrelationData,
-  processPieChartData,
-  processRadarData,
-  detectColumnTypes,
-  ChartConfiguration
-} from '../utils/visualizationUtils';
+import { useState } from 'react';
 
 export type VisualizationType = 
-  | 'timeSeries'
-  | 'distribution'
-  | 'correlation'
-  | 'pie'
-  | 'radar';
+  | "line"
+  | "bar"
+  | "pie"
+  | "scatter"
+  | "radar"
+  | "timeSeries"
+  | "area"
+  | "doughnut"
+  | "polarArea"
+  | "bubble";
 
-export interface UseVisualizationProps {
-  data: any[];
-  type: VisualizationType;
-  mapping: Record<string, string>;
-  chartConfig?: ChartConfiguration;
+export interface ChartData {
+  labels: string[];
+  datasets: Array<{
+    label: string;
+    data: any[];
+    backgroundColor?: string | string[];
+    borderColor?: string | string[];
+    fill?: boolean;
+    tension?: number;
+  }>;
 }
 
-export function useVisualization({ data, type, mapping, chartConfig }: UseVisualizationProps) {
-  const [chartData, setChartData] = useState<ChartData<any> | null>(null);
-  const [chartOptions, setChartOptions] = useState<ChartOptions | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [columnTypes, setColumnTypes] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (!data || data.length === 0) {
-      setError('No data available');
-      setChartData(null);
-      setChartOptions(null);
-      return;
-    }
-
-    // Detect column types
-    const types = detectColumnTypes(data);
-    setColumnTypes(types);
-
-    try {
-      let processedResult: { data: ChartData<any>, options: ChartOptions } | null = null;
-
-      switch (type) {
-        case 'timeSeries':
-          if (!mapping.dateColumn || !mapping.valueColumn) {
-            setError('Please select both date and value columns');
-            break;
-          }
-          if (types[mapping.dateColumn] !== 'date') {
-            setError('Selected date column must contain valid dates');
-            break;
-          }
-          if (types[mapping.valueColumn] !== 'number') {
-            setError('Selected value column must contain numbers');
-            break;
-          }
-          processedResult = processTimeSeriesData(data, mapping.dateColumn, mapping.valueColumn, chartConfig);
-          break;
-
-        case 'distribution':
-          if (!mapping.valueColumn) {
-            setError('Please select a value column');
-            break;
-          }
-          if (types[mapping.valueColumn] !== 'number') {
-            setError('Selected value column must contain numbers');
-            break;
-          }
-          processedResult = processDistributionData(data, mapping.valueColumn, 20, chartConfig);
-          break;
-
-        case 'correlation':
-          if (!mapping.xColumn || !mapping.yColumn) {
-            setError('Please select both X and Y columns');
-            break;
-          }
-          if (types[mapping.xColumn] !== 'number' || types[mapping.yColumn] !== 'number') {
-            setError('Both X and Y columns must contain numbers');
-            break;
-          }
-          processedResult = processCorrelationData(data, mapping.xColumn, mapping.yColumn, chartConfig);
-          break;
-
-        case 'pie':
-          if (!mapping.categoryColumn) {
-            setError('Please select a category column');
-            break;
-          }
-          if (types[mapping.categoryColumn] !== 'string') {
-            setError('Category column must contain text values');
-            break;
-          }
-          if (mapping.valueColumn && types[mapping.valueColumn] !== 'number') {
-            setError('Value column must contain numbers');
-            break;
-          }
-          processedResult = processPieChartData(data, mapping.categoryColumn, mapping.valueColumn, chartConfig);
-          break;
-
-        case 'radar':
-          if (!mapping.metrics) {
-            setError('Please select at least one metric');
-            break;
-          }
-          const metrics = mapping.metrics.split(',').filter(Boolean);
-          if (metrics.length === 0) {
-            setError('Please select at least one metric');
-            break;
-          }
-          if (!metrics.every(metric => types[metric] === 'number')) {
-            setError('All selected metrics must contain numbers');
-            break;
-          }
-          processedResult = processRadarData(data, metrics, mapping.categoryColumn, chartConfig);
-          break;
-
-        default:
-          setError('Unsupported visualization type');
-          break;
-      }
-
-      if (processedResult) {
-        setChartData(processedResult.data);
-        setChartOptions(processedResult.options);
-        setError(null);
-      } else if (!error) {
-        setChartData(null);
-        setChartOptions(null);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error processing data');
-      setChartData(null);
-      setChartOptions(null);
-    }
-  }, [data, type, mapping, chartConfig]);
-
-  return {
-    chartData,
-    chartOptions,
-    error,
-    columnTypes
+export interface ChartOptions {
+  responsive?: boolean;
+  maintainAspectRatio?: boolean;
+  scales?: {
+    x?: {
+      type?: string;
+      time?: {
+        unit?: string;
+      };
+      title?: {
+        display?: boolean;
+        text?: string;
+      };
+    };
+    y?: {
+      beginAtZero?: boolean;
+      title?: {
+        display?: boolean;
+        text?: string;
+      };
+    };
+  };
+  plugins?: {
+    legend?: {
+      position?: 'top' | 'bottom' | 'left' | 'right';
+      display?: boolean;
+    };
+    title?: {
+      display?: boolean;
+      text?: string;
+    };
   };
 }
 
-// Validation helper functions
-export function validateTimeSeriesMapping(mapping: Record<string, string>, columnTypes: Record<string, string>): string | null {
-  if (!mapping.dateColumn || columnTypes[mapping.dateColumn] !== 'date') {
-    return 'Invalid or missing date column';
-  }
-  if (!mapping.valueColumn || columnTypes[mapping.valueColumn] !== 'number') {
-    return 'Invalid or missing value column';
-  }
-  return null;
-}
+export const useVisualization = () => {
+  const [chartType, setChartType] = useState<VisualizationType>("bar");
+  const [chartData, setChartData] = useState<ChartData>({
+    labels: [],
+    datasets: []
+  });
+  const [chartOptions, setChartOptions] = useState<ChartOptions>({
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        display: true
+      }
+    }
+  });
 
-export function validateDistributionMapping(mapping: Record<string, string>, columnTypes: Record<string, string>): string | null {
-  if (!mapping.valueColumn || columnTypes[mapping.valueColumn] !== 'number') {
-    return 'Invalid or missing value column';
-  }
-  return null;
-}
+  const updateChartType = (type: VisualizationType) => {
+    setChartType(type);
+  };
 
-export function validateCorrelationMapping(mapping: Record<string, string>, columnTypes: Record<string, string>): string | null {
-  if (!mapping.xColumn || columnTypes[mapping.xColumn] !== 'number') {
-    return 'Invalid or missing X column';
-  }
-  if (!mapping.yColumn || columnTypes[mapping.yColumn] !== 'number') {
-    return 'Invalid or missing Y column';
-  }
-  return null;
-}
+  const updateChartData = (data: ChartData) => {
+    setChartData(data);
+  };
 
-export function validatePieChartMapping(mapping: Record<string, string>, columnTypes: Record<string, string>): string | null {
-  if (!mapping.categoryColumn || columnTypes[mapping.categoryColumn] !== 'string') {
-    return 'Invalid or missing category column';
-  }
-  if (mapping.valueColumn && columnTypes[mapping.valueColumn] !== 'number') {
-    return 'Invalid value column';
-  }
-  return null;
-}
+  const updateChartOptions = (options: ChartOptions) => {
+    setChartOptions(options);
+  };
 
-export function validateRadarMapping(mapping: Record<string, string>, columnTypes: Record<string, string>): string | null {
-  if (!mapping.metrics) {
-    return 'At least one metric is required';
+  return {
+    chartType,
+    chartData,
+    chartOptions,
+    updateChartType,
+    updateChartData,
+    updateChartOptions
+  };
+};
+
+export const getDefaultDatasetStyle = (type: VisualizationType) => {
+  switch (type) {
+    case 'line':
+    case 'timeSeries':
+      return {
+        fill: false,
+        tension: 0.4,
+        borderWidth: 2,
+        pointRadius: 4
+      };
+    case 'bar':
+      return {
+        backgroundColor: 'rgba(99, 102, 241, 0.5)',
+        borderColor: 'rgb(99, 102, 241)',
+        borderWidth: 1
+      };
+    case 'pie':
+    case 'doughnut':
+    case 'polarArea':
+      return {
+        backgroundColor: [
+          'rgba(99, 102, 241, 0.5)',
+          'rgba(168, 85, 247, 0.5)',
+          'rgba(236, 72, 153, 0.5)',
+          'rgba(59, 130, 246, 0.5)',
+          'rgba(16, 185, 129, 0.5)'
+        ],
+        borderColor: [
+          'rgb(99, 102, 241)',
+          'rgb(168, 85, 247)',
+          'rgb(236, 72, 153)',
+          'rgb(59, 130, 246)',
+          'rgb(16, 185, 129)'
+        ],
+        borderWidth: 1
+      };
+    case 'scatter':
+    case 'bubble':
+      return {
+        backgroundColor: 'rgba(99, 102, 241, 0.5)',
+        borderColor: 'rgb(99, 102, 241)',
+        pointRadius: 6,
+        pointHoverRadius: 8
+      };
+    case 'radar':
+      return {
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        borderColor: 'rgb(99, 102, 241)',
+        pointBackgroundColor: 'rgb(99, 102, 241)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgb(99, 102, 241)'
+      };
+    default:
+      return {};
   }
-  const metrics = mapping.metrics.split(',').filter(Boolean);
-  if (metrics.length === 0) {
-    return 'At least one metric is required';
-  }
-  if (!metrics.every(metric => columnTypes[metric] === 'number')) {
-    return 'All metrics must be numeric columns';
-  }
-  if (mapping.categoryColumn && columnTypes[mapping.categoryColumn] !== 'string') {
-    return 'Invalid category column';
-  }
-  return null;
-}
+};

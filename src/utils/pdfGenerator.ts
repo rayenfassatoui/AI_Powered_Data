@@ -1,146 +1,104 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ChartConfiguration } from '@/components/ChartCustomization';
-import { VisualizationType } from '@/types/visualization';
+import { VisualizationType } from '@/hooks/useVisualization';
 
-const getDataMappingDescription = (type: VisualizationType, mapping: Record<string, string>): string[] => {
-  const descriptions: string[] = [];
-  
-  switch (type) {
-    case 'timeSeries':
-      if (mapping.dateColumn) descriptions.push(`Date Column: ${mapping.dateColumn}`);
-      if (mapping.valueColumn) descriptions.push(`Value Column: ${mapping.valueColumn}`);
-      break;
-    case 'distribution':
-      if (mapping.valueColumn) descriptions.push(`Value Column: ${mapping.valueColumn}`);
-      break;
-    case 'correlation':
-      if (mapping.xColumn) descriptions.push(`X Axis: ${mapping.xColumn}`);
-      if (mapping.yColumn) descriptions.push(`Y Axis: ${mapping.yColumn}`);
-      break;
-    case 'pie':
-      if (mapping.categoryColumn) descriptions.push(`Category Column: ${mapping.categoryColumn}`);
-      if (mapping.valueColumn) descriptions.push(`Value Column: ${mapping.valueColumn}`);
-      break;
-    case 'radar':
-      if (mapping.metrics) descriptions.push(`Metrics: ${mapping.metrics.split(',').join(', ')}`);
-      break;
-  }
+interface Visualization {
+  id: string;
+  type: VisualizationType;
+  mapping: Record<string, string>;
+  config: ChartConfiguration;
+}
 
-  return descriptions;
-};
+export const downloadPDF = async (visualizations: Visualization[]) => {
+  const doc = new jsPDF();
+  let yOffset = 20;
 
-export const generateVisualizationsPDF = async (visualizations: any[], chartConfigs: ChartConfiguration[]) => {
-  const pdf = new jsPDF('p', 'mm', 'a4');
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 20;
-
-  // Add title
-  pdf.setFontSize(20);
-  pdf.text('Data Visualizations Report', pageWidth / 2, margin, { align: 'center' });
-
-  // Add date
-  pdf.setFontSize(12);
-  pdf.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth - margin, margin + 10, { align: 'right' });
-
-  let yPosition = margin + 20;
-
-  // Capture and add each visualization
-  for (let i = 0; i < visualizations.length; i++) {
-    const viz = visualizations[i];
-    const config = chartConfigs[i];
-    const chartElement = document.querySelector(`[data-chart-id="${viz.id}"]`) as HTMLElement;
-
-    if (chartElement) {
-      // Add page break if needed
+  try {
+    for (let i = 0; i < visualizations.length; i++) {
+      const viz = visualizations[i];
+      
       if (i > 0) {
-        pdf.addPage();
-        yPosition = margin;
+        doc.addPage();
+        yOffset = 20;
       }
 
-      // Add visualization title
-      pdf.setFontSize(16);
-      pdf.text(`Visualization ${i + 1}: ${config?.title || 'Untitled'}`, margin, yPosition);
-      yPosition += 10;
+      // Add title
+      doc.setFontSize(16);
+      doc.text(viz.config.title || `Visualization ${i + 1}`, 20, yOffset);
+      yOffset += 10;
 
-      // Add visualization details
-      pdf.setFontSize(12);
-      pdf.text(`Chart Type: ${viz.type}`, margin, yPosition);
-      yPosition += 7;
+      // Add chart type
+      doc.setFontSize(12);
+      doc.text(`Type: ${viz.type}`, 20, yOffset);
+      yOffset += 10;
 
-      // Add data mapping information
-      const mappingDescriptions = getDataMappingDescription(viz.type, viz.mapping);
-      if (mappingDescriptions.length > 0) {
-        pdf.text('Data Mapping:', margin, yPosition);
-        yPosition += 7;
-        mappingDescriptions.forEach(desc => {
-          pdf.text(`• ${desc}`, margin + 5, yPosition);
-          yPosition += 7;
-        });
-      }
+      // Add mapping information
+      doc.setFontSize(10);
+      Object.entries(viz.mapping).forEach(([key, value]) => {
+        doc.text(`${key}: ${value}`, 20, yOffset);
+        yOffset += 5;
+      });
 
-      // Add axis information if available
-      if (config?.data?.options?.scales?.x?.title?.text) {
-        pdf.text(`X-Axis Label: ${config.data.options.scales.x.title.text}`, margin, yPosition);
-        yPosition += 7;
-      }
-      if (config?.data?.options?.scales?.y?.title?.text) {
-        pdf.text(`Y-Axis Label: ${config.data.options.scales.y.title.text}`, margin, yPosition);
-        yPosition += 7;
-      }
-
-      // Add description if available
-      if (config?.description) {
-        yPosition += 5;
-        pdf.text('Description:', margin, yPosition);
-        yPosition += 7;
-        
-        const splitDescription = pdf.splitTextToSize(config.description.toString(), pageWidth - (margin * 2));
-        pdf.text(splitDescription, margin, yPosition);
-        yPosition += (splitDescription.length * 7);
-      }
-
-      try {
-        // Capture the chart as an image
-        const canvas = await html2canvas(chartElement, {
-          scale: 2,
-          logging: false,
-          useCORS: true,
-          backgroundColor: null
-        });
-
-        // Calculate image dimensions to fit the page
-        const imgWidth = pageWidth - (margin * 2);
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        // Check if the image will fit on the current page
-        if (yPosition + imgHeight + margin > pageHeight) {
-          pdf.addPage();
-          yPosition = margin;
+      // Add configuration details
+      yOffset += 5;
+      doc.text('Chart Configuration:', 20, yOffset);
+      yOffset += 5;
+      Object.entries(viz.config).forEach(([key, value]) => {
+        if (key !== 'data' && typeof value !== 'object') {
+          doc.text(`${key}: ${value}`, 20, yOffset);
+          yOffset += 5;
         }
+      });
 
-        // Add the chart image
-        const imgData = canvas.toDataURL('image/png');
-        pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight);
-        yPosition += imgHeight + margin;
+      // Capture and add chart image
+      try {
+        const chartElement = document.querySelector(`[data-viz-id="${viz.id}"]`) as HTMLElement;
+        if (chartElement) {
+          const canvas = await html2canvas(chartElement, {
+            scale: 2,
+            logging: false,
+            useCORS: true,
+            backgroundColor: null
+          });
+
+          // Calculate dimensions to fit the page while maintaining aspect ratio
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const imgWidth = pageWidth - 40; // 20px margin on each side
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+          // Check if we need to add a new page for the chart
+          if (yOffset + imgHeight > doc.internal.pageSize.getHeight() - 20) {
+            doc.addPage();
+            yOffset = 20;
+          }
+
+          // Add the chart image
+          const imgData = canvas.toDataURL('image/png');
+          doc.addImage(imgData, 'PNG', 20, yOffset, imgWidth, imgHeight);
+          yOffset += imgHeight + 10;
+        } else {
+          console.warn(`Chart element not found for visualization ${viz.id}`);
+          // Add placeholder if chart capture fails
+          doc.setDrawColor(200, 200, 200);
+          doc.rect(20, yOffset, 170, 100);
+          doc.text('Chart Preview Not Available', 70, yOffset + 50);
+          yOffset += 110;
+        }
       } catch (error) {
-        console.error('Error capturing visualization:', error);
-        pdf.text('Error: Could not capture visualization', margin, yPosition);
-        yPosition += 10;
+        console.error('Error capturing chart:', error);
+        // Add placeholder if chart capture fails
+        doc.setDrawColor(200, 200, 200);
+        doc.rect(20, yOffset, 170, 100);
+        doc.text('Error Capturing Chart Preview', 70, yOffset + 50);
+        yOffset += 110;
       }
     }
-  }
 
-  return pdf;
-};
-
-export const downloadPDF = async (visualizations: any[], chartConfigs: ChartConfiguration[]) => {
-  try {
-    const pdf = await generateVisualizationsPDF(visualizations, chartConfigs);
-    pdf.save(`visualizations-${new Date().toISOString().split('T')[0]}.pdf`);
+    // Save the PDF
+    doc.save('visualizations.pdf');
   } catch (error) {
     console.error('Error generating PDF:', error);
-    throw error;
+    throw new Error('Failed to generate PDF');
   }
 };

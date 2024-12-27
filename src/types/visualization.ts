@@ -1,4 +1,14 @@
-export type VisualizationType = 'timeSeries' | 'distribution' | 'correlation' | 'pie' | 'radar';
+export type VisualizationType = 
+  | "line"
+  | "bar"
+  | "pie"
+  | "scatter"
+  | "radar"
+  | "timeSeries"
+  | "area"
+  | "doughnut"
+  | "polarArea"
+  | "bubble";
 
 export interface ChartConfiguration {
   title: string;

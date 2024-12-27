@@ -42,6 +42,14 @@ ChartJS.register(
   TimeScale
 );
 
+interface Visualization {
+  id: string;
+  type: VisualizationType;
+  mapping: Record<string, string>;
+  config: ChartConfiguration;
+  data: any[];
+}
+
 export default function VisualizationsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -58,26 +66,23 @@ export default function VisualizationsPage() {
       config: ChartConfiguration;
     }>
   >([]);
-  const [activeVisualization, setActiveVisualization] = useState<string | null>(
-    null
-  );
+  const [activeVisualization, setActiveVisualization] = useState<string | null>(null);
   const [columnTypes, setColumnTypes] = useState<Record<string, string>>({});
-  const [chartConfigs, setChartConfigs] = useState<ChartConfiguration[]>([]);
 
   const defaultChartConfig: ChartConfiguration = {
     title: "Chart Title",
     aspectRatio: 2,
     legendPosition: "bottom",
-    backgroundColor: "#f7f7f7",
-    borderColor: "#333",
-    showGrid: false,
-    animation: false,
-    tension: 0.5,
-    fill: true,
-    pointStyle: "rect",
-    borderWidth: 1,
-    fontSize: 16,
-    padding: 30,
+    backgroundColor: "#ffffff",
+    borderColor: "#6366F1",
+    showGrid: true,
+    animation: true,
+    tension: 0.4,
+    fill: false,
+    pointStyle: "circle",
+    borderWidth: 2,
+    fontSize: 14,
+    padding: 20,
     data: {
       labels: [],
       datasets: []
@@ -87,39 +92,56 @@ export default function VisualizationsPage() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/signin");
+    } else if (status === "authenticated") {
+      fetchDatasets();
     }
   }, [status, router]);
-
-  useEffect(() => {
-    fetchDatasets();
-  }, []);
 
   const detectColumnTypes = (data: any[]): Record<string, string> => {
     if (!data.length) return {};
 
     const types: Record<string, string> = {};
-    const sample = data[0];
+    const sampleSize = Math.min(data.length, 100); // Check first 100 rows for better type detection
 
-    Object.entries(sample).forEach(([key, value]) => {
-      // Check if it's a date
-      if (
-        value instanceof Date ||
-        (typeof value === "string" && !isNaN(Date.parse(value)))
-      ) {
-        types[key] = "date";
-      }
-      // Check if it's a number
-      else if (
-        typeof value === "number" ||
-        (typeof value === "string" && !isNaN(Number(value)))
-      ) {
-        types[key] = "number";
-      }
-      // Default to string
-      else {
-        types[key] = "string";
-      }
+    // Initialize types based on first row
+    Object.keys(data[0]).forEach(key => {
+      types[key] = 'string';
     });
+
+    // Analyze sample rows
+    for (let i = 0; i < sampleSize; i++) {
+      const row = data[i];
+      Object.entries(row).forEach(([key, value]) => {
+        // Skip null or undefined values
+        if (value == null) return;
+
+        // Check for date
+        if (value instanceof Date) {
+          types[key] = 'date';
+          return;
+        }
+
+        if (typeof value === 'string') {
+          // Try parsing as date
+          const dateValue = new Date(value);
+          if (!isNaN(dateValue.getTime()) && value.length > 8) {
+            types[key] = 'date';
+            return;
+          }
+
+          // Try parsing as number
+          const numberValue = Number(value);
+          if (!isNaN(numberValue) && types[key] !== 'date') {
+            types[key] = 'number';
+            return;
+          }
+        }
+
+        if (typeof value === 'number') {
+          types[key] = 'number';
+        }
+      });
+    }
 
     return types;
   };
@@ -133,6 +155,7 @@ export default function VisualizationsPage() {
       setDatasets(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch datasets");
+      console.error("Error fetching datasets:", err);
     } finally {
       setLoading(false);
     }
@@ -141,38 +164,48 @@ export default function VisualizationsPage() {
   const handleDatasetSelect = async (datasetId: string) => {
     try {
       setLoading(true);
+      setError(null);
       setSelectedDataset(datasetId);
+
       const response = await fetch(`/api/datasets/${datasetId}`);
       if (!response.ok) throw new Error("Failed to fetch dataset data");
       const result = await response.json();
 
-      console.log('Raw dataset data:', result);
-
-      // Parse dates in the dataset
+      // Parse dates and numbers in the dataset
       const parsedData = result.data.map((item: any) => {
         const parsed = { ...item };
         Object.entries(item).forEach(([key, value]) => {
-          if (typeof value === "string" && !isNaN(Date.parse(value))) {
-            parsed[key] = new Date(value);
+          if (typeof value === "string") {
+            // Try parsing as date first
+            const dateValue = new Date(value);
+            if (!isNaN(dateValue.getTime()) && value.length > 8) {
+              parsed[key] = dateValue;
+              return;
+            }
+            // Try parsing as number
+            const numberValue = Number(value);
+            if (!isNaN(numberValue)) {
+              parsed[key] = numberValue;
+            }
           }
         });
         return parsed;
       });
 
-      console.log('Parsed dataset data:', parsedData);
-      console.log('Detected column types:', detectColumnTypes(parsedData));
+      console.log('Parsed dataset data:', parsedData.slice(0, 5));
+      
+      const detectedTypes = detectColumnTypes(parsedData);
+      console.log('Detected column types:', detectedTypes);
 
       setDatasetData(parsedData);
-      setColumnTypes(detectColumnTypes(parsedData));
+      setColumnTypes(detectedTypes);
 
       // Reset visualizations when changing dataset
       setVisualizations([]);
       setActiveVisualization(null);
     } catch (err) {
       console.error('Error in handleDatasetSelect:', err);
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch dataset data"
-      );
+      setError(err instanceof Error ? err.message : "Failed to fetch dataset data");
     } finally {
       setLoading(false);
     }
@@ -180,28 +213,34 @@ export default function VisualizationsPage() {
 
   const addVisualization = () => {
     if (!datasetData.length) {
-      console.log('No dataset data available');
       setError("Please select a dataset first");
       return;
     }
 
-    console.log('Current dataset data:', datasetData);
-    console.log('Current column types:', columnTypes);
+    // Determine the best initial visualization type based on column types
+    let initialType: VisualizationType = "bar";
+    const columns = Object.entries(columnTypes);
+    const hasDate = columns.some(([_, type]) => type === 'date');
+    const hasNumber = columns.some(([_, type]) => type === 'number');
+
+    if (hasDate && hasNumber) {
+      initialType = "timeSeries";
+    } else if (hasNumber) {
+      initialType = "bar";
+    } else {
+      initialType = "pie";
+    }
 
     const newViz = {
       id: Math.random().toString(36).substr(2, 9),
-      type: "timeSeries" as VisualizationType,
+      type: initialType,
       mapping: {},
       config: {
         ...defaultChartConfig,
         title: `Visualization ${visualizations.length + 1}`,
-        aspectRatio: 1.5,
-        padding: 30,
-        fontSize: 14,
       },
     };
 
-    console.log('Adding new visualization:', newViz);
     setVisualizations([...visualizations, newViz]);
     setActiveVisualization(newViz.id);
   };
@@ -210,17 +249,42 @@ export default function VisualizationsPage() {
     type: VisualizationType,
     mapping: Record<string, string>
   ): boolean => {
+    const hasValidColumns = (columns: string[]) => 
+      columns.every(col => mapping[col] && columnTypes[mapping[col]]);
+
     switch (type) {
       case "timeSeries":
-        return !!mapping.dateColumn && !!mapping.valueColumn;
-      case "distribution":
-        return !!mapping.valueColumn;
-      case "correlation":
-        return !!mapping.xColumn && !!mapping.yColumn;
+        return hasValidColumns(['dateColumn', 'valueColumn']) &&
+               columnTypes[mapping.dateColumn] === 'date' &&
+               columnTypes[mapping.valueColumn] === 'number';
+      
+      case "line":
+      case "area":
+        return hasValidColumns(['xColumn', 'valueColumn']) &&
+               columnTypes[mapping.valueColumn] === 'number';
+      
+      case "bar":
+        return hasValidColumns(['categoryColumn', 'valueColumn']) &&
+               columnTypes[mapping.valueColumn] === 'number';
+      
       case "pie":
-        return !!mapping.categoryColumn;
+      case "doughnut":
+      case "polarArea":
+        return hasValidColumns(['categoryColumn', 'valueColumn']) &&
+               columnTypes[mapping.valueColumn] === 'number';
+      
+      case "scatter":
+      case "bubble":
+        return hasValidColumns(['xColumn', 'yColumn']) &&
+               columnTypes[mapping.xColumn] === 'number' &&
+               columnTypes[mapping.yColumn] === 'number';
+      
       case "radar":
-        return !!mapping.metrics && mapping.metrics.split(",").length > 0;
+        return mapping.metrics?.split(',').length >= 3 &&
+               mapping.metrics.split(',').every(metric => 
+                 columnTypes[metric] === 'number'
+               );
+      
       default:
         return false;
     }
@@ -244,27 +308,17 @@ export default function VisualizationsPage() {
               ? { ...defaultChartConfig, ...updates.config }
               : viz.config,
           };
-          if (
-            updates.type &&
-            !validateMapping(updates.type, updatedViz.mapping)
-          ) {
+          
+          // Reset mapping if changing visualization type
+          if (updates.type && viz.type !== updates.type) {
             updatedViz.mapping = {};
           }
+          
           return updatedViz;
         }
         return viz;
       })
     );
-    setChartConfigs((prev) => {
-      const newConfigs = [...prev];
-      const index = visualizations.findIndex((v) => v.id === id);
-      if (index !== -1) {
-        newConfigs[index] = updates.config
-          ? { ...defaultChartConfig, ...updates.config }
-          : visualizations[index].config;
-      }
-      return newConfigs;
-    });
   };
 
   const deleteVisualization = (id: string) => {
@@ -272,11 +326,6 @@ export default function VisualizationsPage() {
     if (activeVisualization === id) {
       setActiveVisualization(null);
     }
-    setChartConfigs((prev) =>
-      prev.filter(
-        (_, index) => index !== visualizations.findIndex((v) => v.id === id)
-      )
-    );
   };
 
   const getColumns = () => {
@@ -284,37 +333,17 @@ export default function VisualizationsPage() {
     return Object.keys(datasetData[0]);
   };
 
-  const renderChart = (visualization: {
-    id: string;
-    type: VisualizationType;
-    mapping: Record<string, string>;
-    config: ChartConfiguration;
-  }) => {
-    if (!datasetData.length) return null;
-
-    return (
-      <motion.div
-        key={visualization.id}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="w-full"
-      >
-        <Card className="p-4" gradient hoverEffect>
-          <ChartComponent
-            type={visualization.type}
-            data={datasetData}
-            mapping={visualization.mapping}
-            chartConfig={visualization.config}
-            id={visualization.id}
-          />
-        </Card>
-      </motion.div>
-    );
-  };
-
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="relative w-16 h-16">
+            <div className="absolute top-0 left-0 w-full h-full rounded-full border-4 border-blue-200 animate-pulse"></div>
+            <div className="absolute top-0 left-0 w-full h-full rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+          </div>
+        </div>
+      </Layout>
+    );
   }
 
   return (
@@ -454,7 +483,7 @@ export default function VisualizationsPage() {
 
                   {visualizations.length > 0 && (
                     <Button
-                      onClick={() => downloadPDF(visualizations, chartConfigs)}
+                      onClick={() => downloadPDF(visualizations)}
                       variant="outline"
                       className="inline-flex items-center px-6 py-3 border border-gray-300 shadow-lg text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform hover:scale-105 transition-all duration-200"
                     >
@@ -511,13 +540,19 @@ export default function VisualizationsPage() {
                             </div>
 
                             <div className="min-h-[400px] bg-white rounded-xl p-4 shadow-inner">
-                              <ChartComponent
-                                id={viz.id}
-                                data={datasetData}
-                                type={viz.type}
-                                mapping={viz.mapping}
-                                chartConfig={viz.config}
-                              />
+                              <div
+                                data-viz-id={viz.id}
+                                className="w-full h-[400px] bg-white"
+                                style={{ position: 'relative' }}
+                              >
+                                <ChartComponent
+                                  id={viz.id}
+                                  data={datasetData}
+                                  type={viz.type}
+                                  mapping={viz.mapping}
+                                  chartConfig={viz.config}
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
